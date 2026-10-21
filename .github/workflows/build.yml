@@ -31,7 +31,7 @@ jobs:
           $out = "AgPath"
           New-Item -ItemType Directory -Force $out | Out-Null
           Copy-Item AgPath.exe, README.md, LICENSE, icon.ico $out
-          Copy-Item -Recurse lang, map $out
+          Copy-Item -Recurse lang, map, docs $out
           New-Item -ItemType Directory -Force "$out\tools" | Out-Null
           Copy-Item tools\TestSender.exe "$out\tools"
           Compress-Archive -Path $out -DestinationPath AgPath.zip -Force

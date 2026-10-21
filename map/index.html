@@ -343,7 +343,7 @@
       fieldLayer.eachLayer(function (l) { if ((l.feature.properties.field || l.feature.properties.pelto) === $("fField").value) b = l.getBounds(); });
     }
     if (!b && fieldLayer.getLayers().length) b = fieldLayer.getBounds();
-    if (b && b.isValid()) map.fitBounds(b, { padding: [30, 30], maxZoom: 18 });
+    if (b && b.isValid()) map.fitBounds(b, { padding: [30, 30], maxZoom: 17 });
   }
 
   function renderSummary() {

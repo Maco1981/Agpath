@@ -8,6 +8,10 @@ AgOpenGPS keeps one recorded path per field. AgPath is a small companion window 
 Recordings are saved as standard **GeoJSON** and **KML** files, so they open in QGIS, Google Earth
 or any web map. A built-in map page shows all of them on top of OpenStreetMap or your own base map.
 
+**📖 [User guide](docs/GUIDE.md) · [Käyttöohje suomeksi](docs/OHJE.md)**
+
+<p><img src="docs/images/en-main.png" width="300" alt="AgPath main window"> <img src="docs/images/en-map.jpg" width="520" alt="AgPath map"></p>
+
 *Suomeksi alempana.*
 
 ---
@@ -33,6 +37,9 @@ or any web map. A built-in map page shows all of them on top of OpenStreetMap or
 No installer, no admin rights. All settings and data stay in the AgPath folder.
 
 ## Use
+
+See the [user guide](docs/GUIDE.md) for step-by-step instructions with pictures.
+
 
 * **Start recording / Stop recording**: the big button. While recording you see time, distance and area.
 * When you stop, a save window opens:
@@ -135,6 +142,8 @@ Includes [Leaflet](https://leafletjs.com/) (BSD-2-Clause) in `map\`.
 * **Kartta**-napista aukeaa karttasivu: suodatus pellon, tuotteen, lajikkeen ja päivämäärän mukaan sekä yhteenveto.
   Karttapohjaksi OpenStreetMap, Maanmittauslaitoksen maastokartta/ilmakuva **omalla API-avaimella**, tai oma karttaosoite.
 * Kieli on sama kuin AgOpenGPS:ssä.
+
+**Käyttöohje:** [docs/OHJE.md](docs/OHJE.md)
 
 **Asennus:** lataa `AgPath.zip` kohdasta [Releases](../../releases), pura se haluamaasi kansioon ja käynnistä `AgPath.exe`
 AgOpenGPS:n rinnalle. Maanmittauslaitoksen kartan saa käyttöön Asetuksista omalla
