@@ -104,7 +104,8 @@ e.g. `da`, `pl`, `cs`), translate the text after each `=`, and open a pull reque
 Run `build.bat`. It uses the C# compiler that ships with Windows (`csc.exe`, .NET Framework 4), so
 nothing needs to be installed. The source is plain C# 5 / WinForms in `src\`.
 
-Every push is built by GitHub Actions; pushing a tag `v*` creates a release with `AgPath.zip`.
+Every push is built by GitHub Actions. To publish a release with `AgPath.zip`, push a tag `v*`, or run the
+**Build** workflow manually (Actions → Build → Run workflow) and enter a version such as `v1.0.1`.
 
 ## Test without a tractor
 
