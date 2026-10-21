@@ -119,7 +119,10 @@ settings.customAttr = Map credits
 settings.aogFolder = AgOpenGPS data folder (fields, tools - read only)
 settings.saveFolder = Save folder
 settings.listenIp = Listen address (restart needed)
+settings.saveFolderHint = The shareable map {0} is kept in this folder. Share the folder (e.g. OneDrive) and others can open it on their own computer.
 settings.browse = Browse
+
+map.sharedFile = AgPath-map.html
 
 export.noField = no field
 export.run = Run

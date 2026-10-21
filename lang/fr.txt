@@ -118,7 +118,10 @@ settings.customAttr = Source de la carte
 settings.aogFolder = Dossier de données AgOpenGPS (parcelles, outils – lecture seule)
 settings.saveFolder = Dossier d'enregistrement
 settings.listenIp = Adresse d'écoute (redémarrage nécessaire)
+settings.saveFolderHint = La carte partageable {0} est enregistrée dans ce dossier. Partagez le dossier (p. ex. OneDrive) pour que d'autres l'ouvrent sur leur ordinateur.
 settings.browse = Parcourir
+
+map.sharedFile = AgPath-carte.html
 
 export.noField = sans parcelle
 export.run = Passage

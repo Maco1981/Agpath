@@ -11,6 +11,7 @@ tehdä mitään muutoksia.
 - [3. Ajon tallentaminen tiedostoon](#3-ajon-tallentaminen-tiedostoon)
 - [4. Tuotteet ja lajikkeet](#4-tuotteet-ja-lajikkeet)
 - [5. Kartta](#5-kartta)
+- [5b. Kartan jakaminen](#5b-kartan-jakaminen)
 - [6. Asetukset](#6-asetukset)
 - [7. Missä tiedot ovat](#7-missä-tiedot-ovat)
 - [8. Ongelmatilanteet](#8-ongelmatilanteet)
@@ -87,6 +88,28 @@ poistaminen valikosta ei muuta jo tallennettuja ajoja.
 * **Avaa tiedostoja…** näyttää muualta tuodut GeoJSON-tiedostot, esim. toiselta koneelta.
 
 Karttapohja tarvitsee nettiyhteyden. Polut ja peltorajat näkyvät ilman sitäkin.
+
+## 5b. Kartan jakaminen
+
+AgPath pitää tallennuskansiossa yhtä itsenäistä karttatiedostoa: **`AgPath-kartta.html`**. Siinä ovat kartta,
+kaikki ajot ja peltorajat, ja se päivittyy aina, kun ajo tallennetaan. Kuka tahansa voi avata sen selaimessa
+omalla koneellaan ilman AgOpenGPS:ää tai AgPathia.
+
+**Jakaminen esimerkiksi pomolle tai työkavereille OneDriven kautta:**
+
+1. Valitse AgPathin **Asetukset → Tallennuskansio** -kohtaan kansio OneDriven sisältä, esim. `OneDrive\AgPath`,
+   ja paina OK. Aiemmin tallennetut ajot jäävät vanhaan kansioon. Kopioi ne uuteen kansioon, jos haluat
+   ne mukaan jaettuun karttaan.
+2. Napsauta kansiota Resurssienhallinnassa hiiren oikealla → **Jaa** (OneDrive) ja kutsu pomosi.
+3. Pomosi avaa jaetusta kansiosta **AgPath-kartta.html**-tiedoston: omalla koneellaan OneDrive-sovelluksen
+   kautta tai lataamalla tiedoston OneDriven verkkosivulta.
+
+Uudet ajot näkyvät jaetulla kartalla aina, kun traktorin koneella on nettiyhteys ja OneDrive on ehtinyt
+synkronoida. Pomon tarvitsee vain päivittää sivu.
+
+Huom: jos käytät Maanmittauslaitoksen karttapohjaa, API-avaimesi on mukana jaetussa tiedostossa. Oman
+yrityksen sisällä se on yleensä ok, mutta älä julkaise tiedostoa. Jos et halua jakaa avainta, valitse
+karttapohjaksi **OpenStreetMap**.
 
 ## 6. Asetukset
 

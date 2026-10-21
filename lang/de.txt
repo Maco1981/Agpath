@@ -118,7 +118,10 @@ settings.customAttr = Kartenquelle
 settings.aogFolder = AgOpenGPS-Datenordner (Felder, Geräte – nur lesen)
 settings.saveFolder = Speicherordner
 settings.listenIp = Empfangsadresse (Neustart nötig)
+settings.saveFolderHint = Die teilbare Karte {0} wird in diesem Ordner gespeichert. Ordner teilen (z. B. OneDrive), dann können andere sie auf ihrem eigenen Computer öffnen.
 settings.browse = Durchsuchen
+
+map.sharedFile = AgPath-Karte.html
 
 export.noField = kein Feld
 export.run = Fahrt

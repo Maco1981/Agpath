@@ -118,7 +118,10 @@ settings.customAttr = Kaartbron
 settings.aogFolder = AgOpenGPS-gegevensmap (percelen, werktuigen – alleen lezen)
 settings.saveFolder = Opslagmap
 settings.listenIp = Luisteradres (herstart nodig)
+settings.saveFolderHint = De deelbare kaart {0} staat in deze map. Deel de map (bijv. OneDrive), dan kunnen anderen hem op hun eigen computer openen.
 settings.browse = Bladeren
+
+map.sharedFile = AgPath-kaart.html
 
 export.noField = geen perceel
 export.run = Rit

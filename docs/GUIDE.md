@@ -11,6 +11,7 @@ is not changed in any way.
 - [3. Saving a run](#3-saving-a-run)
 - [4. Products and varieties](#4-products-and-varieties)
 - [5. The map](#5-the-map)
+- [5b. Sharing the map](#5b-sharing-the-map)
 - [6. Settings](#6-settings)
 - [7. Where the data is](#7-where-the-data-is)
 - [8. Troubleshooting](#8-troubleshooting)
@@ -87,6 +88,28 @@ from the list does not change runs you have already saved.
 * **Open files…** shows GeoJSON files from somewhere else, e.g. from another computer.
 
 The base map needs an internet connection. The paths and field boundaries are shown without one.
+
+## 5b. Sharing the map
+
+AgPath keeps a single, self-contained map file in the save folder: **`AgPath-map.html`**. Its name depends
+on the language, e.g. `AgPath-kartta.html` in Finnish. It contains the map, all runs and the field
+boundaries, and is updated every time a run is saved. Anyone can open it in a web browser on their own
+computer, without AgOpenGPS or AgPath.
+
+**To share it with your boss or co-workers through OneDrive:**
+
+1. In AgPath **Settings → Save folder**, choose a folder inside your OneDrive, e.g. `OneDrive\AgPath`,
+   and press OK. Runs saved earlier stay in the old folder. Copy them over if you want them on the shared map.
+2. In File Explorer, right-click that folder → **Share** (OneDrive), and invite your boss.
+3. Your boss opens **AgPath-map.html** from the shared folder: in the OneDrive app on their computer, or by
+   downloading the file from OneDrive on the web.
+
+New runs appear on the shared map whenever the tractor computer has an internet connection and OneDrive
+has synced. Your boss only needs to reload the page.
+
+Note: if you use the National Land Survey of Finland base map, your API key is included in the shared file.
+That is fine within your own company, but don't publish the file. If you don't want to share the key,
+choose **OpenStreetMap** as the base map.
 
 ## 6. Settings
 

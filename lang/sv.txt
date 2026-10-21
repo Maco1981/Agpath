@@ -118,7 +118,10 @@ settings.customAttr = Kartkälla
 settings.aogFolder = AgOpenGPS datamapp (skiften, redskap – endast läsning)
 settings.saveFolder = Mapp för sparade körningar
 settings.listenIp = Lyssningsadress (kräver omstart)
+settings.saveFolderHint = Den delbara kartan {0} sparas i denna mapp. Dela mappen (t.ex. OneDrive) så kan andra öppna den på sin egen dator.
 settings.browse = Bläddra
+
+map.sharedFile = AgPath-karta.html
 
 export.noField = inget skifte
 export.run = Körning

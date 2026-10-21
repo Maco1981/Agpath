@@ -8,6 +8,8 @@ namespace AgPath
     /// <summary>
     /// Writes map\data.js: settings for the map page (language, base map), field boundaries and all
     /// saved recordings, so that map\index.html can show them straight from disk (file://).
+    /// Also writes a single self-contained HTML file (map + Leaflet + data) into the save folder,
+    /// so the map can be shared, e.g. through a OneDrive folder, and opened on any computer.
     /// </summary>
     static class MapData
     {
@@ -55,14 +57,53 @@ namespace AgPath
                           .Append(txt).AppendLine("});");
                     }
                 }
-                string target = Path.Combine(MapDir, "data.js");
-                string tmp = target + ".tmp";
-                File.WriteAllText(tmp, sb.ToString(), new UTF8Encoding(false));
-                if (File.Exists(target)) File.Delete(target);
-                File.Move(tmp, target);
+                string data = sb.ToString();
+                WriteAtomic(Path.Combine(MapDir, "data.js"), data);
+                try { WriteShared(s, html, data); }
+                catch (Exception ex) { Log.Write("Writing shared map: " + ex.Message); }
             }
             catch (Exception ex) { Log.Write("Writing map data: " + ex.Message); }
             return html;
+        }
+
+        public static string SharedPath(Settings s)
+        {
+            string name = Exporter.SafeFileName(Lang.T("map.sharedFile"));
+            if (name == "") name = "Map.html";
+            return Path.Combine(s.SaveDir, name);
+        }
+
+        static void WriteAtomic(string target, string text)
+        {
+            string tmp = target + ".tmp";
+            File.WriteAllText(tmp, text, new UTF8Encoding(false));
+            if (File.Exists(target)) File.Delete(target);
+            File.Move(tmp, target);
+        }
+
+        static string DataUri(string file, string mime)
+        {
+            return "data:" + mime + ";base64," + Convert.ToBase64String(File.ReadAllBytes(file));
+        }
+
+        /// <summary>One HTML file with everything inlined, written to the save folder.</summary>
+        static void WriteShared(Settings s, string indexHtml, string data)
+        {
+            if (!Directory.Exists(s.SaveDir)) Directory.CreateDirectory(s.SaveDir);
+            string page = File.ReadAllText(indexHtml, Encoding.UTF8);
+            string css = File.ReadAllText(Path.Combine(MapDir, "leaflet.css"), Encoding.UTF8);
+            string img = Path.Combine(MapDir, "images");
+            foreach (string png in new string[] { "layers-2x.png", "layers.png", "marker-icon.png" })
+            {
+                string f = Path.Combine(img, png);
+                if (File.Exists(f)) css = css.Replace("url(images/" + png + ")", "url(" + DataUri(f, "image/png") + ")");
+            }
+            string js = File.ReadAllText(Path.Combine(MapDir, "leaflet.js"), Encoding.UTF8).Replace("</script", "<\\/script");
+            page = page.Replace("<link rel=\"stylesheet\" href=\"leaflet.css\">", "<style>\n" + css + "\n</style>");
+            page = page.Replace("<script src=\"leaflet.js\"></script>", "<script>\n" + js + "\n</script>");
+            page = page.Replace("<script src=\"data.js\" onerror=\"window.AGPATH_NO_DATA=true\"></script>",
+                                "<script>\n" + data + "\n</script>");
+            WriteAtomic(SharedPath(s), page);
         }
     }
 }

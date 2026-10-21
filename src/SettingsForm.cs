@@ -137,7 +137,10 @@ namespace AgPath
             tbSave = new TextBox(); tbSave.SetBounds(15, y, 470, 28); tbSave.Text = s.SaveDir; Controls.Add(tbSave);
             Button b2 = Ui.Btn(this, Lang.T("settings.browse"), 495, y - 2, 90, 30, Ui.Grey, 9);
             b2.Click += delegate { Browse(tbSave); };
-            y += 36;
+            y += 32;
+            Label shareHint = Ui.Lbl(this, Lang.T("settings.saveFolderHint", Lang.T("map.sharedFile")), 15, y, 570, 34, 8);
+            shareHint.ForeColor = Color.DimGray;
+            y += 40;
             Ui.Lbl(this, Lang.T("settings.listenIp") + ":", 15, y + 3, 400, 24, 9);
             tbIp = new TextBox(); tbIp.SetBounds(420, y, 165, 28); tbIp.Text = s.ListenIp; Controls.Add(tbIp);
             y += 44;

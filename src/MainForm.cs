@@ -108,6 +108,7 @@ namespace AgPath
         void OnLoadForm(object sender, EventArgs e)
         {
             fields.Load(settings.AogBaseDir);
+            MapData.Write(settings, fields); // keeps the shareable map in the save folder up to date
             rx.Start(settings.ListenIp);
             if (rx.Error != "") ShowMsg(rx.Error, true);
             timer.Start();
@@ -325,6 +326,7 @@ namespace AgPath
                         rec.OnlyWork = settings.OnlyWhenSectionsOn;
                     }
                     rec.MinStep = settings.MinStep;
+                    MapData.Write(settings, fields);
                     if (settings.Language != oldLang) ShowMsg(Lang.T("settings.restartForLanguage"), false);
                 }
             }

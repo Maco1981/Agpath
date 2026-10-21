@@ -86,6 +86,10 @@ The **Map** button writes `map\data.js` and opens `map\index.html` in your brows
 field, product, variety, date and text, see totals, and click a run for its details. Paths can be
 drawn at their real working width.
 
+**Share the map:** AgPath also keeps one self-contained file, `AgPath-map.html`, in the save folder.
+Put the save folder in OneDrive (or any shared folder) and others can open the map on their own
+computers without AgOpenGPS or AgPath. See the [guide](docs/GUIDE.md#5b-sharing-the-map).
+
 Base map (Settings → Base map):
 
 * **OpenStreetMap**: default, no key needed. Please respect the
@@ -140,6 +144,7 @@ Includes [Leaflet](https://leafletjs.com/) (BSD-2-Clause) in `map\`.
 * Tallentuu polku, pinta-ala (ajettu ja katettu), päivämäärä, aloitus- ja lopetusaika, kesto ja matka
   GeoJSON- ja KML-tiedostoina sekä Excel-yhteenvetoon `recordings.csv`.
 * **Kartta**-napista aukeaa karttasivu: suodatus pellon, tuotteen, lajikkeen ja päivämäärän mukaan sekä yhteenveto.
+  Kartan voi jakaa esim. pomolle: tallennuskansiossa on itsenäinen `AgPath-kartta.html`, joka toimii jaetussa OneDrive-kansiossa.
   Karttapohjaksi OpenStreetMap, Maanmittauslaitoksen maastokartta/ilmakuva **omalla API-avaimella**, tai oma karttaosoite.
 * Kieli on sama kuin AgOpenGPS:ssä.
 

@@ -118,7 +118,10 @@ settings.customAttr = Kartan lähde
 settings.aogFolder = AgOpenGPS:n tietokansio (pellot, työkoneet – vain luku)
 settings.saveFolder = Tallennuskansio
 settings.listenIp = Kuunteluosoite (vaatii uudelleenkäynnistyksen)
+settings.saveFolderHint = Tähän kansioon tallentuu jaettava kartta {0}. Kun jaat kansion (esim. OneDrive), muut voivat avata kartan omalla koneellaan.
 settings.browse = Selaa
+
+map.sharedFile = AgPath-kartta.html
 
 export.noField = ei peltoa
 export.run = Ajo
