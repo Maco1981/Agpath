@@ -1,0 +1,10 @@
+*.exe
+build_log.txt
+settings.txt
+products.txt
+log.txt
+recording_backup.txt
+recording_backup.txt.tmp
+Recordings/
+map/data.js
+map/data.js.tmp

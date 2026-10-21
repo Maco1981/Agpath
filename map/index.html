@@ -1,0 +1,463 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AgPath</title>
+<link rel="stylesheet" href="leaflet.css">
+<style>
+  :root {
+    --bg: #ffffff; --panel: #f6f7f9; --text: #1f2328; --muted: #656d76; --line: #d8dee4;
+    --accent: #2ea043; --accent-text: #ffffff; --hover: #eaeef2; --sel: #dafbe1;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #0d1117; --panel: #161b22; --text: #e6edf3; --muted: #8d96a0; --line: #30363d;
+            --accent: #2ea043; --accent-text: #ffffff; --hover: #21262d; --sel: #12361f; }
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: var(--bg); color: var(--text);
+    font: 14px/1.4 "Segoe UI", system-ui, sans-serif; }
+  #app { display: flex; height: 100%; }
+  #side { width: 360px; min-width: 360px; display: flex; flex-direction: column; background: var(--panel);
+    border-right: 1px solid var(--line); }
+  #side.hidden { display: none; }
+  #map { flex: 1; }
+  header { padding: 12px 14px 8px; border-bottom: 1px solid var(--line); }
+  header h1 { font-size: 17px; margin: 0 0 2px; }
+  header .sub { color: var(--muted); font-size: 12px; }
+  .filters { padding: 10px 14px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; border-bottom: 1px solid var(--line); }
+  .filters label { display: flex; flex-direction: column; font-size: 12px; color: var(--muted); gap: 3px; }
+  .filters .wide { grid-column: 1 / -1; }
+  select, input[type=date], input[type=search] { font: inherit; padding: 6px 8px; border: 1px solid var(--line);
+    border-radius: 6px; background: var(--bg); color: var(--text); width: 100%; min-height: 34px; }
+  .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .filters label.chk { display: flex; flex-direction: row; align-items: center; gap: 6px; font-size: 13px; color: var(--text); cursor: pointer; }
+  button { font: inherit; padding: 6px 10px; border: 1px solid var(--line); border-radius: 6px; background: var(--bg);
+    color: var(--text); cursor: pointer; min-height: 34px; }
+  button:hover { background: var(--hover); }
+  button.primary { background: var(--accent); color: var(--accent-text); border-color: var(--accent); }
+  .summary { padding: 10px 14px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; border-bottom: 1px solid var(--line); }
+  .stat { background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 6px 8px; }
+  .stat .v { font-size: 16px; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .stat .k { font-size: 11px; color: var(--muted); }
+  #list { flex: 1; overflow-y: auto; }
+  .item { display: grid; grid-template-columns: 22px 1fr auto; gap: 8px; padding: 8px 14px; border-bottom: 1px solid var(--line);
+    cursor: pointer; align-items: center; }
+  .item:hover { background: var(--hover); }
+  .item.sel { background: var(--sel); }
+  .item .sw { width: 14px; height: 14px; border-radius: 3px; }
+  .item .t { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .item .m { color: var(--muted); font-size: 12px; }
+  .item .a { text-align: right; font-variant-numeric: tabular-nums; font-size: 13px; }
+  .item input { margin: 0; width: 16px; height: 16px; }
+  .empty { padding: 20px 14px; color: var(--muted); }
+  .legend { padding: 8px 14px; border-top: 1px solid var(--line); display: flex; flex-wrap: wrap; gap: 6px 12px; font-size: 12px; }
+  .legend span { display: inline-flex; align-items: center; gap: 5px; }
+  .legend i { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
+  #toggle { position: absolute; z-index: 1000; top: 10px; left: 54px; }
+  .warn { margin: 10px 14px; padding: 8px 10px; border-radius: 6px; background: #fff8c5; color: #4d2d00; font-size: 13px; }
+  .leaflet-popup-content { font: 13px/1.45 "Segoe UI", system-ui, sans-serif; }
+  .leaflet-popup-content table { border-collapse: collapse; }
+  .leaflet-popup-content td { padding: 1px 8px 1px 0; vertical-align: top; }
+  .leaflet-popup-content td:first-child { color: #656d76; }
+  .leaflet-popup-content h3 { margin: 0 0 6px; font-size: 15px; }
+  @media (max-width: 760px) {
+    #side { position: absolute; z-index: 1001; height: 100%; width: 100%; min-width: 0; }
+  }
+</style>
+</head>
+<body>
+<div id="app">
+  <aside id="side">
+    <header>
+      <div class="row" style="justify-content:space-between">
+        <h1 data-t="panelTitle">Driven paths</h1>
+        <button id="hide" title="">◀</button>
+      </div>
+      <div class="sub" id="updated"></div>
+    </header>
+    <div id="warnings"></div>
+    <div class="filters">
+      <label><span data-t="field">Field</span><select id="fField"></select></label>
+      <label><span data-t="product">Product</span><select id="fProduct"></select></label>
+      <label><span data-t="variety">Variety</span><select id="fVariety"></select></label>
+      <label><span data-t="colorBy">Colour by</span><select id="colorBy">
+        <option value="product" data-t="colorProduct">Product</option>
+        <option value="variety" data-t="colorVariety">Variety</option>
+        <option value="field" data-t="colorField">Field</option>
+        <option value="run" data-t="colorRun">Each run</option>
+      </select></label>
+      <label><span data-t="from">From</span><input type="date" id="fFrom"></label>
+      <label><span data-t="to">To</span><input type="date" id="fTo"></label>
+      <label class="wide"><span data-t="search">Search</span><input type="search" id="fText"></label>
+      <div class="wide row">
+        <label class="chk"><input type="checkbox" id="showWidth" checked> <span data-t="showWidth">Show working width</span></label>
+        <label class="chk"><input type="checkbox" id="showFields" checked> <span data-t="fieldBounds">Field boundaries</span></label>
+        <button id="reset" data-t="clear">Clear filters</button>
+      </div>
+      <div class="wide row">
+        <button id="fitAll" class="primary" data-t="fitAll">Show all selected</button>
+        <button id="openFiles" data-t="openFiles">Open files…</button>
+        <input type="file" id="fileInput" accept=".geojson,.json" multiple hidden>
+      </div>
+    </div>
+    <div class="summary">
+      <div class="stat"><div class="v" id="sCount">0</div><div class="k" data-t="runs">runs</div></div>
+      <div class="stat"><div class="v" id="sArea">0</div><div class="k" data-t="areaHa">area, ha</div></div>
+      <div class="stat"><div class="v" id="sCover">0</div><div class="k" data-t="coveredHa">covered, ha</div></div>
+      <div class="stat"><div class="v" id="sDist">0</div><div class="k" data-t="distanceKm">distance, km</div></div>
+      <div class="stat"><div class="v" id="sTime">0</div><div class="k" data-t="timeHm">time, h:min</div></div>
+      <div class="stat"><div class="v" id="sFields">0</div><div class="k" data-t="fieldsCount">fields</div></div>
+    </div>
+    <div id="list"></div>
+    <div class="legend" id="legend"></div>
+  </aside>
+  <div id="map"></div>
+</div>
+<button id="toggle" hidden data-t="showPanel">☰ Runs</button>
+
+<script src="leaflet.js"></script>
+<script src="data.js" onerror="window.AGPATH_NO_DATA=true"></script>
+<script>
+(function () {
+  "use strict";
+  var A = window.AGPATH || {};
+  var TX = A.texts || {};
+  var LANG = A.lang || "en";
+  var MAPCFG = A.map || { provider: "osm" };
+  function t(k, a) { var s = TX[k] || k; if (a !== undefined) s = s.replace("{0}", a); return s; }
+  var PALETTE = ["#e6194b", "#4363d8", "#f58231", "#911eb4", "#00a6c8", "#f032e6", "#3cb44b",
+                 "#9a6324", "#800000", "#000075", "#808000", "#ff6f91", "#469990", "#c9a400"];
+
+  document.documentElement.lang = LANG;
+  Array.prototype.forEach.call(document.querySelectorAll("[data-t]"), function (el) {
+    var k = el.getAttribute("data-t"); if (TX[k]) el.textContent = TX[k];
+  });
+  document.getElementById("fText").placeholder = t("searchPlaceholder");
+  document.getElementById("hide").title = t("hidePanel");
+
+  function store(k, v) { try { if (v === undefined) return localStorage.getItem("agpath_" + k); localStorage.setItem("agpath_" + k, v); } catch (e) { return null; } }
+  function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+  function num(n, d) { return (Number(n) || 0).toLocaleString(LANG, { minimumFractionDigits: d, maximumFractionDigits: d }); }
+  function hmin(sec) { sec = Math.round(sec || 0); var h = Math.floor(sec / 3600), m = Math.floor((sec % 3600) / 60); return h + ":" + (m < 10 ? "0" : "") + m; }
+  function $(id) { return document.getElementById(id); }
+  function fmtDate(iso) { if (!iso) return ""; var d = new Date(iso.substring(0, 10) + "T12:00:00"); return isNaN(d) ? iso : d.toLocaleDateString(LANG); }
+  function hm(iso) { return iso && iso.length >= 16 ? iso.substring(11, 16) : ""; }
+
+  // ---------- map ----------
+  var map = L.map("map", { preferCanvas: true }).setView([60, 15], 5);
+  var bases = {}, overlays = {};
+  var osm = L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+    { maxNativeZoom: 19, maxZoom: 21, attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>' });
+  function mml(layer, ext) {
+    return L.tileLayer("https://avoin-karttakuva.maanmittauslaitos.fi/avoin/wmts/1.0.0/" + layer +
+      "/default/WGS84_Pseudo-Mercator/{z}/{y}/{x}." + ext + "?api-key=" + encodeURIComponent(MAPCFG.mmlKey || ""),
+      { maxNativeZoom: 16, maxZoom: 21, attribution: "&copy; Maanmittauslaitos" });
+  }
+  if (MAPCFG.provider === "mml" && MAPCFG.mmlKey) {
+    bases[t("mmlTopo")] = mml("maastokartta", "png");
+    bases[t("mmlOrtho")] = mml("ortokuva", "jpg");
+    bases[t("mmlBackground")] = mml("taustakartta", "png");
+    bases[t("mmlPlain")] = mml("selkokartta", "png");
+    overlays[t("mmlParcels")] = mml("kiinteistojaotus", "png");
+  } else if (MAPCFG.provider === "custom" && MAPCFG.url) {
+    bases[t("customMap")] = L.tileLayer(MAPCFG.url, { maxZoom: 21, attribution: esc(MAPCFG.attribution || "") });
+  }
+  bases["OpenStreetMap"] = osm;
+  var baseNames = Object.keys(bases);
+  var savedBase = store("base_" + (MAPCFG.provider || "osm"));
+  (bases[savedBase] || bases[baseNames[0]]).addTo(map);
+  map.on("baselayerchange", function (e) { store("base_" + (MAPCFG.provider || "osm"), e.name); });
+
+  var fieldLayer = L.geoJSON(null, {
+    style: { color: "#c000c0", weight: 2, fill: true, fillOpacity: 0.04, dashArray: "6 4" },
+    interactive: false
+  });
+  var fieldLabels = L.layerGroup();
+  var tracksLayer = L.layerGroup().addTo(map);
+  overlays[t("fieldBounds")] = fieldLayer;
+  overlays[t("fieldNames")] = fieldLabels;
+  L.control.layers(bases, overlays, { position: "topright" }).addTo(map);
+  L.control.scale({ imperial: false }).addTo(map);
+
+  // ---------- data ----------
+  var records = [];
+  var byKey = {};
+
+  // properties: English keys; older files (AOG Kerrokset, Finnish keys) are mapped
+  function normalize(p) {
+    if (p.name !== undefined || p.product !== undefined) return p;
+    var startIso = p.aloitus_iso || "", endIso = p.lopetus_iso || "";
+    return { name: p.nimi, product: p.tuote, variety: p.lajike, field: p.pelto,
+      date: startIso.substring(0, 10), start: startIso, end: endIso, duration: p.kesto, duration_s: p.kesto_s,
+      distance_m: p.matka_m, width_m: p.tyoleveys_m, area_ha: p.ala_ha, covered_area_ha: p.katettu_ala_ha,
+      notes: p.lisatiedot };
+  }
+
+  function addRecord(file, data) {
+    try {
+      var fc = data.type === "FeatureCollection" ? data : { type: "FeatureCollection", features: [data] };
+      fc.features.forEach(function (f, i) {
+        if (!f || !f.geometry) return;
+        var key = file + "#" + i;
+        if (byKey[key]) return;
+        var p = normalize(f.properties || {});
+        var r = { key: key, file: file, p: p, geo: f.geometry, visible: true };
+        r.date = p.date || (p.start ? p.start.substring(0, 10) : "");
+        r.width = Number(p.width_m) || 0;
+        byKey[key] = r;
+        records.push(r);
+      });
+    } catch (e) { console.warn("Invalid file", file, e); }
+  }
+
+  (A.runs || []).forEach(function (a) { addRecord(a.file, a.data); });
+  if (A.fields) {
+    fieldLayer.addData(A.fields);
+    (A.fields.features || []).forEach(function (f) {
+      var c = L.geoJSON(f).getBounds().getCenter();
+      L.marker(c, { interactive: false, icon: L.divIcon({ className: "", html:
+        '<div style="font:600 12px Segoe UI,sans-serif;color:#7a007a;text-shadow:0 0 3px #fff,0 0 3px #fff;white-space:nowrap;transform:translate(-50%,-50%)">' +
+        esc(f.properties.field || f.properties.pelto) + "</div>" }) }).addTo(fieldLabels);
+    });
+  }
+  if (store("fields") !== "0") { fieldLayer.addTo(map); } else { $("showFields").checked = false; }
+
+  var warn = [];
+  if (MAPCFG.provider === "mml" && !MAPCFG.mmlKey) warn.push(t("noMmlKey"));
+  if (window.AGPATH_NO_DATA) warn.push(t("noDataJs"));
+  $("warnings").innerHTML = warn.map(function (w) { return '<div class="warn">' + esc(w) + "</div>"; }).join("");
+  $("updated").textContent = A.updated ? t("updated", A.updated) : "";
+
+  // ---------- filters ----------
+  function uniq(field, list) {
+    var s = {};
+    list.forEach(function (r) { var v = r.p[field]; if (v) s[v] = true; });
+    return Object.keys(s).sort(function (a, b) { return a.localeCompare(b, LANG); });
+  }
+  function fillSelect(sel, values, allText) {
+    var cur = sel.value;
+    sel.innerHTML = '<option value="">' + esc(allText) + "</option>" +
+      values.map(function (v) { return '<option value="' + esc(v) + '">' + esc(v) + "</option>"; }).join("");
+    sel.value = values.indexOf(cur) >= 0 ? cur : "";
+  }
+  function refreshSelects() {
+    fillSelect($("fField"), uniq("field", records), t("allFields"));
+    fillSelect($("fProduct"), uniq("product", records), t("allProducts"));
+    var pr = $("fProduct").value;
+    fillSelect($("fVariety"), uniq("variety", records.filter(function (r) { return !pr || r.p.product === pr; })), t("allVarieties"));
+  }
+
+  function matches(r) {
+    var fld = $("fField").value, pr = $("fProduct").value, va = $("fVariety").value;
+    var from = $("fFrom").value, to = $("fTo").value, q = $("fText").value.trim().toLowerCase();
+    if (fld && r.p.field !== fld) return false;
+    if (pr && r.p.product !== pr) return false;
+    if (va && r.p.variety !== va) return false;
+    if (from && r.date && r.date < from) return false;
+    if (to && r.date && r.date > to) return false;
+    if (q) {
+      var hay = [r.p.name, r.p.notes, r.p.product, r.p.variety, r.p.field].join(" ").toLowerCase();
+      if (hay.indexOf(q) < 0) return false;
+    }
+    return true;
+  }
+
+  // ---------- colours ----------
+  var colorMap = {};
+  function colorKey(r) {
+    var by = $("colorBy").value;
+    if (by === "run") return r.key;
+    if (by === "variety") return ((r.p.product || "") + " " + (r.p.variety || "")).trim();
+    return r.p[by] || r.p.name || t("noName");
+  }
+  function assignColors(list) {
+    colorMap = {};
+    var keys = [];
+    list.forEach(function (r) { var k = colorKey(r); if (!(k in colorMap)) { colorMap[k] = PALETTE[keys.length % PALETTE.length]; keys.push(k); } });
+    list.forEach(function (r) { r.color = colorMap[colorKey(r)]; });
+    $("legend").innerHTML = $("colorBy").value === "run" || !keys.length ? "" :
+      keys.slice(0, 20).map(function (k) { return '<span><i style="background:' + colorMap[k] + '"></i>' + esc(k || "–") + "</span>"; }).join("");
+  }
+
+  // ---------- drawing ----------
+  function metersPerPixel() {
+    var lat = map.getCenter().lat * Math.PI / 180;
+    return 40075016.686 * Math.cos(lat) / Math.pow(2, map.getZoom() + 8);
+  }
+  function weightFor(r) {
+    if (!$("showWidth").checked || !r.width) return 3;
+    return Math.max(2, Math.min(200, r.width / metersPerPixel()));
+  }
+  function latlngs(geo) {
+    function conv(line) { return line.map(function (c) { return [c[1], c[0]]; }); }
+    if (geo.type === "LineString") return [conv(geo.coordinates)];
+    if (geo.type === "MultiLineString") return geo.coordinates.map(conv);
+    return [];
+  }
+  function popupHtml(r) {
+    var p = r.p;
+    function row(k, v) { return v === "" || v == null ? "" : "<tr><td>" + esc(t(k)) + "</td><td>" + esc(v) + "</td></tr>"; }
+    return "<h3>" + esc(p.name || t("run")) + "</h3><table>" +
+      row("product", p.product) + row("variety", p.variety) + row("field", p.field) +
+      row("date", fmtDate(r.date)) + row("time", hm(p.start) + " – " + hm(p.end)) +
+      row("duration", p.duration) + row("distance", num((p.distance_m || 0) / 1000, 2) + " km") +
+      row("width", num(p.width_m, 2) + " m") +
+      row("area", num(p.area_ha, 2) + " ha") + row("covered", num(p.covered_area_ha, 2) + " ha") +
+      row("notes", p.notes) + row("file", r.file) + "</table>";
+  }
+
+  var shown = [];
+  var selectedKey = null;
+
+  function redraw(fit) {
+    tracksLayer.clearLayers();
+    shown = records.filter(matches).sort(function (a, b) { return (b.p.start || "").localeCompare(a.p.start || ""); });
+    assignColors(shown);
+    shown.forEach(function (r) {
+      if (!r.visible) { r.layer = null; return; }
+      r.layer = L.polyline(latlngs(r.geo), {
+        color: r.color, weight: weightFor(r), opacity: r.key === selectedKey ? 0.95 : 0.7,
+        lineCap: "butt", lineJoin: "round"
+      }).bindPopup(popupHtml(r), { maxWidth: 320 });
+      r.layer.on("click", function () { select(r.key, false); });
+      r.layer.addTo(tracksLayer);
+    });
+    renderList();
+    renderSummary();
+    if (fit) fitShown();
+  }
+
+  function updateWeights() {
+    shown.forEach(function (r) { if (r.layer) r.layer.setStyle({ weight: weightFor(r) }); });
+  }
+
+  function fitShown() {
+    var b = null;
+    shown.forEach(function (r) {
+      if (!r.layer) return;
+      var lb = r.layer.getBounds();
+      b = b ? b.extend(lb) : L.latLngBounds(lb.getSouthWest(), lb.getNorthEast());
+    });
+    if (!b && $("fField").value) {
+      fieldLayer.eachLayer(function (l) { if ((l.feature.properties.field || l.feature.properties.pelto) === $("fField").value) b = l.getBounds(); });
+    }
+    if (!b && fieldLayer.getLayers().length) b = fieldLayer.getBounds();
+    if (b && b.isValid()) map.fitBounds(b, { padding: [30, 30], maxZoom: 18 });
+  }
+
+  function renderSummary() {
+    var vis = shown.filter(function (r) { return r.visible; });
+    var area = 0, cover = 0, dist = 0, time = 0, fields = {};
+    vis.forEach(function (r) {
+      area += Number(r.p.area_ha) || 0; cover += Number(r.p.covered_area_ha) || 0;
+      dist += Number(r.p.distance_m) || 0; time += Number(r.p.duration_s) || 0;
+      if (r.p.field) fields[r.p.field] = true;
+    });
+    $("sCount").textContent = vis.length + (vis.length !== shown.length ? "/" + shown.length : "");
+    $("sArea").textContent = num(area, 2);
+    $("sCover").textContent = num(cover, 2);
+    $("sDist").textContent = num(dist / 1000, 1);
+    $("sTime").textContent = hmin(time);
+    $("sFields").textContent = Object.keys(fields).length;
+  }
+
+  function renderList() {
+    var list = $("list");
+    if (!shown.length) {
+      list.innerHTML = '<div class="empty">' + esc(records.length ? t("noMatch") : t("noData")) + "</div>";
+      return;
+    }
+    list.innerHTML = shown.map(function (r, i) {
+      var sub = [fmtDate(r.date), hm(r.p.start), r.p.field].filter(Boolean).join(" · ");
+      return '<div class="item' + (r.key === selectedKey ? " sel" : "") + '" data-i="' + i + '">' +
+        '<input type="checkbox" ' + (r.visible ? "checked" : "") + ' title="' + esc(t("showOnMap")) + '">' +
+        '<div><div class="t"><span class="sw" style="display:inline-block;vertical-align:-2px;margin-right:6px;background:' + r.color + '"></span>' +
+        esc(r.p.name || t("run")) + '</div><div class="m">' + esc(sub) + "</div></div>" +
+        '<div class="a">' + num(r.p.area_ha, 2) + ' ha<br><span class="m">' + esc(r.p.duration || "") + "</span></div></div>";
+    }).join("");
+  }
+
+  function select(key, zoom) {
+    selectedKey = key;
+    var r = byKey[key];
+    shown.forEach(function (x) { if (x.layer) x.layer.setStyle({ opacity: x.key === key ? 0.95 : 0.7 }); });
+    if (r && r.layer) {
+      r.layer.bringToFront();
+      if (zoom) map.fitBounds(r.layer.getBounds(), { padding: [40, 40], maxZoom: 19 });
+      r.layer.openPopup(zoom ? r.layer.getBounds().getCenter() : undefined);
+    }
+    renderList();
+  }
+
+  $("list").addEventListener("click", function (e) {
+    var item = e.target.closest(".item");
+    if (!item) return;
+    var r = shown[Number(item.getAttribute("data-i"))];
+    if (e.target.tagName === "INPUT") { r.visible = e.target.checked; redraw(false); return; }
+    if (!r.visible) { r.visible = true; redraw(false); }
+    select(r.key, true);
+    if (window.innerWidth <= 760) hideSide(true);
+  });
+
+  // ---------- events ----------
+  ["fField", "fVariety", "fFrom", "fTo", "colorBy"].forEach(function (id) {
+    $(id).addEventListener("change", function () { saveFilters(); redraw(id !== "colorBy"); });
+  });
+  $("fProduct").addEventListener("change", function () { refreshSelects(); saveFilters(); redraw(true); });
+  var tmr;
+  $("fText").addEventListener("input", function () { clearTimeout(tmr); tmr = setTimeout(function () { saveFilters(); redraw(false); }, 250); });
+  $("showWidth").addEventListener("change", function () { store("width", this.checked ? "1" : "0"); updateWeights(); });
+  $("showFields").addEventListener("change", function () {
+    store("fields", this.checked ? "1" : "0");
+    if (this.checked) fieldLayer.addTo(map); else map.removeLayer(fieldLayer);
+  });
+  $("reset").addEventListener("click", function () {
+    ["fField", "fProduct", "fVariety", "fFrom", "fTo", "fText"].forEach(function (id) { $(id).value = ""; });
+    records.forEach(function (r) { r.visible = true; });
+    refreshSelects(); saveFilters(); redraw(true);
+  });
+  $("fitAll").addEventListener("click", fitShown);
+  map.on("zoomend", updateWeights);
+
+  function hideSide(h) { $("side").classList.toggle("hidden", h); $("toggle").hidden = !h; setTimeout(function () { map.invalidateSize(); }, 50); }
+  $("hide").addEventListener("click", function () { hideSide(true); });
+  $("toggle").addEventListener("click", function () { hideSide(false); });
+
+  $("openFiles").addEventListener("click", function () { $("fileInput").click(); });
+  $("fileInput").addEventListener("change", function () {
+    var files = Array.prototype.slice.call(this.files), left = files.length;
+    files.forEach(function (f) {
+      var rd = new FileReader();
+      rd.onload = function () {
+        try { addRecord(f.name, JSON.parse(rd.result)); } catch (e) { alert(t("fileError", f.name)); }
+        if (--left === 0) { refreshSelects(); redraw(true); }
+      };
+      rd.readAsText(f);
+    });
+    this.value = "";
+  });
+
+  function saveFilters() {
+    store("filters", JSON.stringify({ field: $("fField").value, product: $("fProduct").value, variety: $("fVariety").value,
+      from: $("fFrom").value, to: $("fTo").value, text: $("fText").value, color: $("colorBy").value }));
+  }
+  function loadFilters() {
+    try {
+      var f = JSON.parse(store("filters") || "{}");
+      refreshSelects();
+      if (f.field) $("fField").value = f.field;
+      if (f.product) { $("fProduct").value = f.product; refreshSelects(); }
+      if (f.variety) $("fVariety").value = f.variety;
+      $("fFrom").value = f.from || ""; $("fTo").value = f.to || ""; $("fText").value = f.text || "";
+      if (f.color) $("colorBy").value = f.color;
+    } catch (e) { refreshSelects(); }
+    if (store("width") === "0") $("showWidth").checked = false;
+  }
+
+  loadFilters();
+  redraw(true);
+})();
+</script>
+</body>
+</html>
