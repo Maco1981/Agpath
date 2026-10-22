@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Windows.Forms;
 
 namespace AgPath
@@ -25,7 +26,6 @@ namespace AgPath
             MinimizeBox = false; MaximizeBox = false;
             TopMost = true;
             BackColor = Color.White;
-            AutoScroll = true;
             Font = Ui.F(10);
 
             int y = 10;
@@ -158,13 +158,25 @@ namespace AgPath
             tbIp = new TextBox(); tbIp.SetBounds(420, y, 165, 28); tbIp.Text = s.ListenIp; Controls.Add(tbIp);
             y += 44;
 
-            Button ok = Ui.Btn(this, "OK", 330, y, 120, 48, Ui.Green, 12);
-            Button cancel = Ui.Btn(this, Lang.T("common.cancel"), 460, y, 125, 48, Ui.Grey, 11);
+            // Content scrolls if the screen is low; OK / Cancel stay visible at the bottom.
+            Panel content = new Panel();
+            content.AutoScroll = true;
+            content.Dock = DockStyle.Fill;
+            foreach (Control c in new List<Control>(Controls.Cast<Control>())) content.Controls.Add(c);
+            Panel bottom = new Panel();
+            bottom.Dock = DockStyle.Bottom;
+            bottom.Height = 64;
+            bottom.BackColor = Color.FromArgb(246, 248, 250);
+            Button ok = Ui.Btn(bottom, "OK", 330, 8, 120, 48, Ui.Green, 12);
+            Button cancel = Ui.Btn(bottom, Lang.T("common.cancel"), 460, 8, 125, 48, Ui.Grey, 11);
             ok.Click += delegate { Apply(); };
             cancel.Click += delegate { DialogResult = DialogResult.Cancel; Close(); };
-            int h = y + 60;
+            Controls.Add(content);
+            Controls.Add(bottom);
+            content.BringToFront(); // fill docks last, i.e. the space left above the button bar
+            int h = y + 10 + bottom.Height;
             int maxH = Screen.PrimaryScreen.WorkingArea.Height - 60;
-            ClientSize = new Size(600 + (h > maxH ? 20 : 0), Math.Min(h, maxH));
+            ClientSize = new Size(600 + (h > maxH ? SystemInformation.VerticalScrollBarWidth : 0), Math.Min(h, maxH));
         }
 
         void UpdateMapFields()
