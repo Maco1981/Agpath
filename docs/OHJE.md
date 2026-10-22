@@ -49,7 +49,8 @@ Paina **LOPETA TALLENNUS**. Tallennusikkuna avautuu:
 ![Tallennusikkuna](images/fi-save.png)
 
 * Ylhäällä näkyvät päivämäärä, aloitus- ja lopetusaika, kesto, matka ja ala.
-* **Valitse tuote ja lajike**: valitse valikosta tai kirjoita uusi. Uudet nimet lisätään valikkoon, kun
+* **Valitse tuote ja lajike**: napauta kenttää, niin valikko aukeaa, tai kirjoita uusi nimi. Kun valitset
+  tuotteen, lajikevalikko aukeaa automaattisesti. Uudet nimet lisätään valikkoon, kun
   *Lisää uudet tuotteet ja lajikkeet valikkoon* on valittuna.
 * **Kirjoita nimi**: tuotteen sijaan oma nimi, esim. "Lannoitus, pohjoispää".
 * **Pelto** täyttyy automaattisesti. Sitä voi muuttaa.
@@ -119,6 +120,9 @@ karttapohjaksi **OpenStreetMap**.
 * **Työleveys**: AgOpenGPS:n valittu työkone tai oma leveys. Leveyden voi ottaa myös mistä tahansa
   AgOpenGPS:n työkoneprofiilista.
 * **Laske ala vain kun AgOpenGPS:n työlohkot ovat päällä**: tallennusikkunan oletusvalinta.
+* **Tallennettava GPS-tarkkuus**: *Kaikki pisteet*, *RTK fix ja RTK float* tai *Vain RTK fix*. Heikomman
+  tarkkuuden pisteet jätetään pois polusta ja alasta, eikä polkua yhdistetä katkon yli. Kun pisteitä jätetään
+  pois, pääikkunan GPS-rivillä lukee punaisella **EI TALLENNETA**. Hyödyllinen kaukana RTK-tukiasemasta.
 * **Karttapohja**:
   * **OpenStreetMap** toimii kaikkialla ilman avainta.
   * **Maanmittauslaitos** antaa maastokartan, ilmakuvan ja kiinteistörajat. Tilaa oma ilmainen API-avain

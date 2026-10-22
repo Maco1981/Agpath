@@ -168,6 +168,7 @@ namespace AgPath
                 rec.Width = settings.EffectiveWidth();
                 rec.OnlyWork = settings.OnlyWhenSectionsOn;
                 rec.MinStep = settings.MinStep;
+                rec.MinFix = settings.MinFix;
                 rec.Start();
                 lastBackup = DateTime.Now;
                 if (!rx.HasPosition) ShowMsg(Lang.T("main.startedNoGps"), true);
@@ -234,9 +235,12 @@ namespace AgPath
             Fix f;
             bool? sec = rx.SectionsOn;
             bool work = sec.HasValue ? sec.Value : true; // unknown section state -> counted
+            bool good = settings.AcceptsFix(rx.FixQuality);
             while (rx.Fixes.TryDequeue(out f))
             {
-                if (rec.Active) rec.AddFix(f.Lat, f.Lon, work, f.Time);
+                if (!rec.Active) continue;
+                if (good) rec.AddFix(f.Lat, f.Lon, work, f.Time);
+                else rec.SkipFix();
             }
         }
 
@@ -263,6 +267,11 @@ namespace AgPath
             if (q != "" && rx.HasPosition) src += "  (" + q + ")";
             bool? sec = rx.SectionsOn;
             if (sec.HasValue) src += "  • " + (sec.Value ? Lang.T("gps.sectionsOn") : Lang.T("gps.sectionsOff"));
+            if (rx.HasPosition && !settings.AcceptsFix(rx.FixQuality))
+            {
+                src += "  – " + Lang.T("gps.notRecorded");
+                col = Ui.Red;
+            }
             lblGps.Text = src;
             lblGps.ForeColor = col;
 

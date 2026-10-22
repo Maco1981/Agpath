@@ -13,7 +13,7 @@ namespace AgPath
         NumericUpDown nudWidth, nudStep;
         CheckBox chkOnlyWork, chkTop;
         TextBox tbAog, tbSave, tbIp, tbKey, tbUrl, tbAttr;
-        ComboBox cbLang, cbMap;
+        ComboBox cbLang, cbMap, cbFix;
         readonly List<string> langCodes = new List<string>();
 
         public SettingsForm(Settings settings)
@@ -96,6 +96,19 @@ namespace AgPath
             nudStep.DecimalPlaces = 2; nudStep.Increment = 0.05m; nudStep.Minimum = 0.05m; nudStep.Maximum = 10m;
             nudStep.Value = (decimal)s.MinStep;
             Controls.Add(nudStep);
+            y += 38;
+            Ui.Lbl(this, Lang.T("settings.minFix") + ":", 15, y + 3, 260, 24, 10);
+            cbFix = new ComboBox();
+            cbFix.DropDownStyle = ComboBoxStyle.DropDownList;
+            cbFix.SetBounds(280, y, 305, 28);
+            cbFix.Items.Add(Lang.T("settings.minFixAll"));
+            cbFix.Items.Add(Lang.T("settings.minFixFloat"));
+            cbFix.Items.Add(Lang.T("settings.minFixFix"));
+            cbFix.SelectedIndex = s.MinFix == "float" ? 1 : s.MinFix == "fix" ? 2 : 0;
+            Controls.Add(cbFix);
+            y += 30;
+            Label fixHint = Ui.Lbl(this, Lang.T("settings.minFixHint"), 280, y, 305, 34, 8);
+            fixHint.ForeColor = Color.DimGray;
             y += 40;
 
             // ---- map ----
@@ -177,6 +190,7 @@ namespace AgPath
             s.OnlyWhenSectionsOn = chkOnlyWork.Checked;
             s.TopMost = chkTop.Checked;
             s.MinStep = (double)nudStep.Value;
+            s.MinFix = cbFix.SelectedIndex == 1 ? "float" : cbFix.SelectedIndex == 2 ? "fix" : "all";
             s.MapProvider = cbMap.SelectedIndex == 1 ? "mml" : cbMap.SelectedIndex == 2 ? "custom" : "osm";
             s.MmlApiKey = tbKey.Text.Trim();
             s.CustomTileUrl = tbUrl.Text.Trim();

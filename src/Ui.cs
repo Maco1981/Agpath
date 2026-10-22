@@ -42,6 +42,21 @@ namespace AgPath
             return l;
         }
 
+        /// <summary>
+        /// Makes a combo box easier to use on a touch screen: the list opens when the text area is
+        /// tapped, not only the small arrow. A new name can still be typed.
+        /// </summary>
+        public static void TouchCombo(ComboBox cb)
+        {
+            EventHandler open = delegate
+            {
+                if (cb.Items.Count == 0 || cb.DroppedDown || !cb.Enabled) return;
+                cb.BeginInvoke((MethodInvoker)delegate { if (!cb.DroppedDown) cb.DroppedDown = true; });
+            };
+            cb.Click += open;
+            cb.MouseUp += delegate { open(cb, EventArgs.Empty); };
+        }
+
         public static void Keyboard()
         {
             try

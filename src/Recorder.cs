@@ -64,6 +64,9 @@ namespace AgPath
         public double MinStep = 0.3;
         public double MaxJump = 25;        // m: a bigger jump = GPS gap, not connected
         public double MaxGapSeconds = 10;  // s: a longer pause between points = new part
+        public string MinFix = "all";      // GPS quality filter used (saved with the run)
+        public int SkippedFixes;           // fixes left out because of poor GPS quality
+        bool breakNext;                    // next point starts a new part (after skipped fixes)
 
         public double Distance;   // m, total distance
         public double WorkDistance; // m, distance counted for area
@@ -84,6 +87,8 @@ namespace AgPath
             hasOrigin = false;
             last = null;
             seg = 0;
+            SkippedFixes = 0;
+            breakNext = false;
             StartTime = DateTime.Now;
             EndTime = StartTime;
             Active = true;
@@ -105,6 +110,14 @@ namespace AgPath
             const double R = 6371008.8;
             x = (lon - lon0) * Math.PI / 180.0 * R * cosLat0;
             y = (lat - lat0) * Math.PI / 180.0 * R;
+        }
+
+        /// <summary>A fix was left out (poor GPS quality): the path is not connected over the gap.</summary>
+        public void SkipFix()
+        {
+            if (!Active) return;
+            SkippedFixes++;
+            breakNext = true;
         }
 
         public void AddFix(double lat, double lon, bool work, DateTime time)
@@ -130,7 +143,8 @@ namespace AgPath
                 double d = Math.Sqrt(dx * dx + dy * dy);
                 bool newSeg;
                 if (forcedSeg >= 0) newSeg = forcedSeg != last.Seg;
-                else newSeg = d > MaxJump || (time - lastFixTime).TotalSeconds > MaxGapSeconds;
+                else newSeg = breakNext || d > MaxJump || (time - lastFixTime).TotalSeconds > MaxGapSeconds;
+                breakNext = false;
 
                 if (!newSeg && filter && d < MinStep && work == last.Work)
                 {

@@ -93,6 +93,9 @@ namespace AgPath
             foreach (string f in fields.FieldNames) cbField.Items.Add(f);
             cbField.Text = fields.FieldForPath(rec.Points);
             Controls.Add(cbField);
+            Ui.TouchCombo(cbProduct);
+            Ui.TouchCombo(cbVariety);
+            Ui.TouchCombo(cbField);
             y += 44;
 
             Ui.Lbl(this, Lang.T("f.widthM") + ":", 15, y + 4, 110, 28, 12);
@@ -143,6 +146,16 @@ namespace AgPath
             rbName.CheckedChanged += delegate { UpdateEnabled(); };
             cbProduct.TextChanged += delegate { FillVarieties(); };
             cbProduct.SelectedIndexChanged += delegate { FillVarieties(); };
+            cbProduct.SelectionChangeCommitted += delegate
+            {
+                // after choosing a product, go straight to its varieties
+                BeginInvoke((MethodInvoker)delegate
+                {
+                    FillVarieties();
+                    cbVariety.Focus();
+                    if (cbVariety.Items.Count > 0) cbVariety.DroppedDown = true;
+                });
+            };
             nudWidth.ValueChanged += delegate { Recalc(); };
             chkOnlyWork.CheckedChanged += delegate { Recalc(); };
 

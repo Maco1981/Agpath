@@ -49,7 +49,8 @@ Press **STOP RECORDING**. The save window opens:
 ![Save window](images/en-save.png)
 
 * The top shows the date, start and end time, duration, distance and area.
-* **Choose product and variety**: pick them from the lists or type new ones. New names are added to
+* **Choose product and variety**: tap the box to open the list, or type a new name. When you choose a
+  product, the variety list opens automatically. New names are added to
   the lists when *Add new products and varieties to the lists* is ticked.
 * **Type a name**: use your own name instead, e.g. "Fertiliser, north end".
 * **Field** is filled in automatically. You can change it.
@@ -119,6 +120,9 @@ choose **OpenStreetMap** as the base map.
 * **Working width**: the tool selected in AgOpenGPS, or your own width. You can also copy the width from
   any AgOpenGPS tool profile.
 * **Count area only when AgOpenGPS sections are on**: sets the default for the save window.
+* **GPS quality to record**: *All points*, *RTK fix and RTK float*, or *RTK fix only*. Points with poorer
+  quality are left out of the path and the area, and the path is not joined across the gap. While points
+  are being left out, the GPS line in the main window shows **NOT RECORDED** in red. Useful far from the RTK base station.
 * **Base map**:
   * **OpenStreetMap** works everywhere without a key.
   * **National Land Survey of Finland** gives the Finnish topographic map, aerial photos and property

@@ -133,6 +133,8 @@ namespace AgPath
             sb.Append("\"area_ha\":").Append(N(r.DrivenArea / 10000.0, "0.0000")).Append(',');
             sb.Append("\"covered_area_ha\":").Append(N(r.Cover.AreaM2 / 10000.0, "0.0000")).Append(',');
             sb.Append("\"only_sections_on\":").Append(r.OnlyWork ? "true" : "false").Append(',');
+            sb.Append("\"gps_filter\":").Append(J(r.MinFix)).Append(',');
+            sb.Append("\"skipped_fixes\":").Append(r.SkippedFixes.ToString(Inv)).Append(',');
             sb.Append("\"notes\":").Append(J(info.Notes)).Append(',');
             sb.Append("\"points\":").Append(r.Points.Count.ToString(Inv)).Append(',');
             sb.Append("\"app\":").Append(J("AgPath " + Program.Version));

@@ -18,6 +18,7 @@ namespace AgPath
         public string ListenIp = "127.77.0.1";
         public double MinStep = 0.3;          // m, minimum distance between points
         public bool TopMost = true;
+        public string MinFix = "all";        // all | float | fix : which GPS quality is recorded
         public int WinX = -1, WinY = -1;
         public bool Compact = false;
         public string Language = "auto";      // auto = same as AgOpenGPS
@@ -61,6 +62,7 @@ namespace AgPath
                             case "window_y": case "ikkuna_y": s.WinY = (int)ParseD(v, -1); break;
                             case "compact": case "pieni_tila": s.Compact = v == "1"; break;
                             case "language": s.Language = v; break;
+                            case "min_fix": s.MinFix = (v == "fix" || v == "float") ? v : "all"; break;
                             case "map_provider": s.MapProvider = v; break;
                             case "mml_api_key": s.MmlApiKey = v; break;
                             case "custom_tile_url": s.CustomTileUrl = v; break;
@@ -94,6 +96,7 @@ namespace AgPath
                 sb.AppendLine("save_folder=" + SaveDir);
                 sb.AppendLine("listen_ip=" + ListenIp);
                 sb.AppendLine("min_point_distance=" + D(MinStep));
+                sb.AppendLine("min_fix=" + MinFix);
                 sb.AppendLine("always_on_top=" + (TopMost ? "1" : "0"));
                 sb.AppendLine("window_x=" + WinX);
                 sb.AppendLine("window_y=" + WinY);
@@ -105,6 +108,17 @@ namespace AgPath
                 File.WriteAllText(FilePath, sb.ToString(), new UTF8Encoding(false));
             }
             catch (Exception ex) { Log.Write("Saving settings: " + ex.Message); }
+        }
+
+        /// <summary>
+        /// Is a fix of this quality recorded? q: NMEA fix quality from AgIO (4 = RTK fix, 5 = RTK float,
+        /// 8 = simulator, -1 = unknown). Unknown and simulator are always accepted.
+        /// </summary>
+        public bool AcceptsFix(int q)
+        {
+            if (MinFix == "all" || q < 0 || q == 8) return true;
+            if (MinFix == "fix") return q == 4;
+            return q == 4 || q == 5;
         }
 
         /// <summary>Working width: own setting or the active AgOpenGPS tool.</summary>
