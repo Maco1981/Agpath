@@ -234,6 +234,30 @@
   if (MAPCFG.provider === "mml" && !MAPCFG.mmlKey) warn.push(t("noMmlKey"));
   if (window.AGPATH_NO_DATA) warn.push(t("noDataJs"));
   $("warnings").innerHTML = warn.map(function (w) { return '<div class="warn">' + esc(w) + "</div>"; }).join("");
+
+  // Base map tiles blocked (e.g. the page is opened inside the OneDrive / Dropbox preview,
+  // which does not allow loading map images) -> tell the user to open the file in a browser.
+  var tileErrors = 0, tileOk = 0, tileWarned = false;
+  function watchTiles(layer) {
+    layer.on("tileload", function () { tileOk++; });
+    layer.on("tileerror", function () {
+      tileErrors++;
+      if (!tileWarned && tileOk === 0 && tileErrors >= 4) {
+        tileWarned = true;
+        var box = document.createElement("div");
+        box.className = "warn";
+        box.textContent = t("tilesBlocked");
+        $("warnings").appendChild(box);
+        var m = document.createElement("div");
+        m.className = "warn";
+        m.style.cssText = "position:absolute;z-index:1002;left:60px;right:60px;bottom:30px;margin:0;box-shadow:0 2px 8px rgba(0,0,0,.3)";
+        m.textContent = t("tilesBlocked");
+        document.body.appendChild(m);
+        setTimeout(function () { m.remove(); }, 15000);
+      }
+    });
+  }
+  Object.keys(bases).forEach(function (k) { watchTiles(bases[k]); });
   $("updated").textContent = A.updated ? t("updated", A.updated) : "";
 
   // ---------- filters ----------

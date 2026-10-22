@@ -177,6 +177,7 @@ web.noMatch = Aucun passage pour ces filtres.
 web.noData = Aucun passage enregistré. Enregistrez un passage avec AgPath puis appuyez sur Carte.
 web.noMmlKey = La carte finlandaise nécessite une clé API (réglages d'AgPath).
 web.noDataJs = data.js est manquant. Ouvrez la carte avec le bouton Carte d'AgPath ou ouvrez des fichiers manuellement.
+web.tilesBlocked = Le fond de carte n'a pas pu être chargé. Si vous avez ouvert ce fichier dans l'aperçu OneDrive (ou autre), ouvrez-le dans un navigateur : téléchargez le fichier et ouvrez-le avec Chrome, Safari ou Firefox.
 web.fileError = Impossible de lire le fichier {0}.
 web.showOnMap = Afficher sur la carte
 web.run = Passage

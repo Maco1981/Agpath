@@ -178,6 +178,7 @@ web.noMatch = Ei ajoja valituilla suodattimilla.
 web.noData = Ei vielä tallennettuja ajoja. Tallenna ajo AgPathilla ja paina siinä Kartta-nappia.
 web.noMmlKey = Maanmittauslaitoksen kartta tarvitsee API-avaimen (AgPathin asetukset).
 web.noDataJs = data.js puuttuu. Avaa kartta AgPathin Kartta-napista tai avaa tiedostoja käsin.
+web.tilesBlocked = Karttapohja ei lataudu. Jos avasit tiedoston OneDriven (tai muun palvelun) esikatselussa, avaa se selaimessa: lataa tiedosto ja avaa se Chromella, Safarilla tai Firefoxilla.
 web.fileError = Tiedostoa {0} ei voitu lukea.
 web.showOnMap = Näytä kartalla
 web.run = Ajo

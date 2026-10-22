@@ -177,6 +177,7 @@ web.noMatch = Geen ritten met deze filters.
 web.noData = Nog geen opgeslagen ritten. Sla een rit op met AgPath en druk daar op Kaart.
 web.noMmlKey = De Finse kaart heeft een API-sleutel nodig (AgPath-instellingen).
 web.noDataJs = data.js ontbreekt. Open de kaart met de knop Kaart in AgPath, of open bestanden handmatig.
+web.tilesBlocked = De achtergrondkaart kon niet worden geladen. Als u het bestand in het OneDrive-voorbeeld (of een ander) hebt geopend, open het dan in een browser: download het bestand en open het met Chrome, Safari of Firefox.
 web.fileError = Bestand {0} kon niet worden gelezen.
 web.showOnMap = Op de kaart tonen
 web.run = Rit

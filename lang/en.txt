@@ -179,6 +179,7 @@ web.noMatch = No runs match the filters.
 web.noData = No saved runs yet. Save a run with AgPath and press its Map button.
 web.noMmlKey = The NLS Finland map needs an API key (AgPath settings).
 web.noDataJs = data.js is missing. Open the map with the Map button in AgPath, or open files manually.
+web.tilesBlocked = The base map could not be loaded. If you opened this file in the OneDrive (or other) preview, open it in a web browser instead: download the file and open it with Chrome, Safari or Firefox.
 web.fileError = Could not read file {0}.
 web.showOnMap = Show on map
 web.run = Run

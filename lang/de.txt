@@ -177,6 +177,7 @@ web.noMatch = Keine Fahrten für diese Filter.
 web.noData = Noch keine gespeicherten Fahrten. Eine Fahrt mit AgPath speichern und dort auf Karte drücken.
 web.noMmlKey = Die finnische Karte benötigt einen API-Schlüssel (AgPath-Einstellungen).
 web.noDataJs = data.js fehlt. Karte über die Schaltfläche Karte in AgPath öffnen oder Dateien manuell öffnen.
+web.tilesBlocked = Die Hintergrundkarte konnte nicht geladen werden. Wenn Sie die Datei in der OneDrive-Vorschau (o. ä.) geöffnet haben, öffnen Sie sie im Browser: Datei herunterladen und mit Chrome, Safari oder Firefox öffnen.
 web.fileError = Datei {0} konnte nicht gelesen werden.
 web.showOnMap = Auf der Karte zeigen
 web.run = Fahrt

@@ -177,6 +177,7 @@ web.noMatch = Inga körningar matchar filtren.
 web.noData = Inga sparade körningar ännu. Spara en körning med AgPath och tryck på dess Karta-knapp.
 web.noMmlKey = Den finska kartan kräver en API-nyckel (AgPath-inställningar).
 web.noDataJs = data.js saknas. Öppna kartan med Karta-knappen i AgPath, eller öppna filer manuellt.
+web.tilesBlocked = Bakgrundskartan kunde inte laddas. Om du öppnade filen i OneDrives (eller annan) förhandsgranskning, öppna den i en webbläsare: ladda ner filen och öppna den i Chrome, Safari eller Firefox.
 web.fileError = Filen {0} kunde inte läsas.
 web.showOnMap = Visa på kartan
 web.run = Körning
