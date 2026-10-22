@@ -29,6 +29,7 @@ f.covered = Täckt areal
 f.coveredHa = Täckt areal (ha)
 f.notes = Anteckningar
 f.file = Fil
+f.speed = Hastighet
 
 gps.fromAog = GPS: AgOpenGPS
 gps.fromAgio = GPS: AgIO
@@ -63,7 +64,7 @@ main.discarded = Körningen kastades.
 main.mapMissing = Kartmappen saknas (map\index.html).
 
 backup.title = Ofullständig inspelning
-backup.text = Den förra inspelningen avslutades inte (t.ex. strömavbrott).\nStartad {0}, {1} km, {2} punkter.\n\nVad vill du göra?
+backup.text = Den förra inspelningen avslutades inte (t.ex. strömavbrott).\nStartad {0}, {1}, {2} punkter.\n\nVad vill du göra?
 backup.continue = Fortsätt inspelningen
 backup.saveNow = Spara nu
 backup.discard = Kasta
@@ -103,7 +104,7 @@ settings.restartForLanguage = Det nya språket används efter omstart av AgPath.
 settings.widthTitle = Arbetsbredd (för arealberäkning)
 settings.widthFromAog = Redskap valt i AgOpenGPS
 settings.notFound = hittades inte
-settings.widthOwn = Egen bredd, m:
+settings.widthOwn = Egen bredd
 settings.fromProfile = (hämta bredd från profil)
 settings.onlySections = Räkna areal bara när AgOpenGPS-sektionerna är på
 settings.topMost = Fönstret alltid överst
@@ -126,6 +127,14 @@ settings.saveFolder = Mapp för sparade körningar
 settings.listenIp = Lyssningsadress (kräver omstart)
 settings.saveFolderHint = Den delbara kartan {0} sparas i denna mapp. Dela mappen (t.ex. OneDrive) så kan andra öppna den på sin egen dator.
 settings.browse = Bläddra
+settings.units = Enheter
+settings.unitsAuto = Samma som AgOpenGPS ({0})
+settings.unitsMetric = Metriska (km, ha, km/h, m)
+settings.unitsImperial = Brittiska (mi, ac, mph, ft)
+settings.unitsMetricShort = metriska
+settings.unitsImperialShort = brittiska
+settings.recordingTitle = Inspelning
+settings.foldersTitle = Mappar
 
 map.sharedFile = AgPath-karta.html
 
@@ -187,3 +196,6 @@ web.mmlBackground = Bakgrundskarta
 web.mmlPlain = Förenklad karta
 web.mmlParcels = Fastighetsgränser
 web.customMap = Egen karta
+web.areaShort = areal
+web.coveredShort = täckt
+web.distanceShort = sträcka

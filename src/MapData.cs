@@ -27,6 +27,7 @@ namespace AgPath
                 sb.AppendLine("window.AGPATH = {};");
                 sb.AppendLine("AGPATH.updated = " + Exporter.J(DateTime.Now.ToString("g", Lang.Culture)) + ";");
                 sb.AppendLine("AGPATH.lang = " + Exporter.J(Lang.Code) + ";");
+                sb.AppendLine("AGPATH.units = " + Exporter.J(Units.Imperial ? "imperial" : "metric") + ";");
                 sb.Append("AGPATH.texts = {");
                 bool first = true;
                 foreach (KeyValuePair<string, string> kv in Lang.WebTexts())

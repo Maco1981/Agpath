@@ -103,9 +103,9 @@
     </div>
     <div class="summary">
       <div class="stat"><div class="v" id="sCount">0</div><div class="k" data-t="runs">runs</div></div>
-      <div class="stat"><div class="v" id="sArea">0</div><div class="k" data-t="areaHa">area, ha</div></div>
-      <div class="stat"><div class="v" id="sCover">0</div><div class="k" data-t="coveredHa">covered, ha</div></div>
-      <div class="stat"><div class="v" id="sDist">0</div><div class="k" data-t="distanceKm">distance, km</div></div>
+      <div class="stat"><div class="v" id="sArea">0</div><div class="k" id="kArea">area, ha</div></div>
+      <div class="stat"><div class="v" id="sCover">0</div><div class="k" id="kCover">covered, ha</div></div>
+      <div class="stat"><div class="v" id="sDist">0</div><div class="k" id="kDist">distance, km</div></div>
       <div class="stat"><div class="v" id="sTime">0</div><div class="k" data-t="timeHm">time, h:min</div></div>
       <div class="stat"><div class="v" id="sFields">0</div><div class="k" data-t="fieldsCount">fields</div></div>
     </div>
@@ -125,6 +125,10 @@
   var TX = A.texts || {};
   var LANG = A.lang || "en";
   var MAPCFG = A.map || { provider: "osm" };
+  // display units (files are always metric)
+  var IMPERIAL = A.units === "imperial";
+  var U = IMPERIAL ? { area: "ac", dist: "mi", width: "ft", fa: 2.4710538, fd: 1 / 1609.344, fw: 1 / 0.3048 }
+                   : { area: "ha", dist: "km", width: "m", fa: 1, fd: 1 / 1000, fw: 1 };
   function t(k, a) { var s = TX[k] || k; if (a !== undefined) s = s.replace("{0}", a); return s; }
   var PALETTE = ["#e6194b", "#4363d8", "#f58231", "#911eb4", "#00a6c8", "#f032e6", "#3cb44b",
                  "#9a6324", "#800000", "#000075", "#808000", "#ff6f91", "#469990", "#c9a400"];
@@ -134,6 +138,9 @@
     var k = el.getAttribute("data-t"); if (TX[k]) el.textContent = TX[k];
   });
   document.getElementById("fText").placeholder = t("searchPlaceholder");
+  document.getElementById("kArea").textContent = (TX.areaShort || "area") + ", " + U.area;
+  document.getElementById("kCover").textContent = (TX.coveredShort || "covered") + ", " + U.area;
+  document.getElementById("kDist").textContent = (TX.distanceShort || "distance") + ", " + U.dist;
   document.getElementById("hide").title = t("hidePanel");
 
   function store(k, v) { try { if (v === undefined) return localStorage.getItem("agpath_" + k); localStorage.setItem("agpath_" + k, v); } catch (e) { return null; } }
@@ -301,9 +308,9 @@
     return "<h3>" + esc(p.name || t("run")) + "</h3><table>" +
       row("product", p.product) + row("variety", p.variety) + row("field", p.field) +
       row("date", fmtDate(r.date)) + row("time", hm(p.start) + " – " + hm(p.end)) +
-      row("duration", p.duration) + row("distance", num((p.distance_m || 0) / 1000, 2) + " km") +
-      row("width", num(p.width_m, 2) + " m") +
-      row("area", num(p.area_ha, 2) + " ha") + row("covered", num(p.covered_area_ha, 2) + " ha") +
+      row("duration", p.duration) + row("distance", num((p.distance_m || 0) * U.fd, 2) + " " + U.dist) +
+      row("width", num((p.width_m || 0) * U.fw, 2) + " " + U.width) +
+      row("area", num((p.area_ha || 0) * U.fa, 2) + " " + U.area) + row("covered", num((p.covered_area_ha || 0) * U.fa, 2) + " " + U.area) +
       row("notes", p.notes) + row("file", r.file) + "</table>";
   }
 
@@ -355,9 +362,9 @@
       if (r.p.field) fields[r.p.field] = true;
     });
     $("sCount").textContent = vis.length + (vis.length !== shown.length ? "/" + shown.length : "");
-    $("sArea").textContent = num(area, 2);
-    $("sCover").textContent = num(cover, 2);
-    $("sDist").textContent = num(dist / 1000, 1);
+    $("sArea").textContent = num(area * U.fa, 2);
+    $("sCover").textContent = num(cover * U.fa, 2);
+    $("sDist").textContent = num(dist * U.fd, 1);
     $("sTime").textContent = hmin(time);
     $("sFields").textContent = Object.keys(fields).length;
   }
@@ -374,7 +381,7 @@
         '<input type="checkbox" ' + (r.visible ? "checked" : "") + ' title="' + esc(t("showOnMap")) + '">' +
         '<div><div class="t"><span class="sw" style="display:inline-block;vertical-align:-2px;margin-right:6px;background:' + r.color + '"></span>' +
         esc(r.p.name || t("run")) + '</div><div class="m">' + esc(sub) + "</div></div>" +
-        '<div class="a">' + num(r.p.area_ha, 2) + ' ha<br><span class="m">' + esc(r.p.duration || "") + "</span></div></div>";
+        '<div class="a">' + num((r.p.area_ha || 0) * U.fa, 2) + " " + U.area + '<br><span class="m">' + esc(r.p.duration || "") + "</span></div></div>";
     }).join("");
   }
 

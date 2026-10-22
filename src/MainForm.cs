@@ -120,7 +120,7 @@ namespace AgPath
             Recorder old = Recorder.ReadBackup();
             if (old == null) { Recorder.DeleteBackup(); return; }
             string txt = Lang.T("backup.text", old.StartTime.ToString("g", Lang.Culture),
-                                (old.Distance / 1000.0).ToString("0.00", Lang.Culture), old.Points.Count);
+                                Units.Dist(old.Distance), old.Points.Count);
             int c = Ui.Choose(this, txt, Lang.T("backup.title"), Lang.T("backup.continue"), Lang.T("backup.saveNow"), Lang.T("backup.discard"));
             if (c == 0)
             {
@@ -238,6 +238,7 @@ namespace AgPath
             bool good = settings.AcceptsFix(rx.FixQuality);
             while (rx.Fixes.TryDequeue(out f))
             {
+                TrackSpeed(f);
                 if (!rec.Active) continue;
                 if (good) rec.AddFix(f.Lat, f.Lon, work, f.Time);
                 else rec.SkipFix();
@@ -251,11 +252,34 @@ namespace AgPath
             msgUntil = DateTime.Now.AddSeconds(12);
         }
 
-        string Ha(double m2) { return (m2 / 10000.0).ToString("0.00", Lang.Culture); }
+        // ---- speed from the last seconds of fixes ----
+        readonly System.Collections.Generic.Queue<Fix> recentFixes = new System.Collections.Generic.Queue<Fix>();
+        double speedKmh = -1;
+
+        void TrackSpeed(Fix f)
+        {
+            recentFixes.Enqueue(f);
+            while (recentFixes.Count > 0 && (f.Time - recentFixes.Peek().Time).TotalSeconds > 2.5) recentFixes.Dequeue();
+        }
+
+        void UpdateSpeed()
+        {
+            if (!rx.HasPosition || recentFixes.Count < 2) { speedKmh = -1; recentFixes.Clear(); return; }
+            Fix a = recentFixes.Peek();
+            Fix b = null;
+            foreach (Fix x in recentFixes) b = x;
+            double dt = (b.Time - a.Time).TotalSeconds;
+            if (dt < 0.5) return;
+            double k = Math.Cos(a.Lat * Math.PI / 180.0);
+            double dx = (b.Lon - a.Lon) * Math.PI / 180.0 * 6371008.8 * k;
+            double dy = (b.Lat - a.Lat) * Math.PI / 180.0 * 6371008.8;
+            speedKmh = Math.Sqrt(dx * dx + dy * dy) / dt * 3.6;
+        }
 
         void OnTick()
         {
             DrainFixes();
+            UpdateSpeed();
             DateTime now = DateTime.Now;
 
             string src;
@@ -288,9 +312,10 @@ namespace AgPath
                 lblTime.Text = (rec.Active ? "● " : "") + Exporter.FormatDuration(rec.Elapsed) +
                                "   (" + Lang.T("main.startedAt", rec.StartTime.ToString("HH:mm")) + ")";
                 lblTime.ForeColor = rec.Active ? Ui.Red : Ui.Dark;
-                lblDist.Text = Lang.T("f.distance") + ": " + (rec.Distance / 1000.0).ToString("0.00", Lang.Culture) + " km";
-                lblArea.Text = Lang.T("f.area") + ": " + Ha(rec.DrivenArea) + " ha   (" +
-                               Lang.T("main.coveredShort") + " " + Ha(rec.Cover.AreaM2) + " ha)";
+                lblDist.Text = Lang.T("f.distance") + ": " + Units.Dist(rec.Distance) +
+                               (speedKmh >= 0 ? "     " + Lang.T("f.speed") + ": " + Units.Speed(speedKmh) : "");
+                lblArea.Text = Lang.T("f.area") + ": " + Units.Area(rec.DrivenArea) + "   (" +
+                               Lang.T("main.coveredShort") + " " + Units.Area(rec.Cover.AreaM2) + ")";
             }
             else
             {
@@ -301,11 +326,11 @@ namespace AgPath
             }
             double w = rec.Active ? rec.Width : settings.EffectiveWidth();
             string prof = settings.ToolWidth > 0 ? Lang.T("main.ownWidth") : Settings.ActiveToolProfile();
-            lblWidth.Text = Lang.T("f.width") + " " + w.ToString("0.##", Lang.Culture) + " m" + (prof != "" ? " (" + prof + ")" : "") +
+            lblWidth.Text = Lang.T("f.width") + " " + Units.Width(w) + (prof != "" ? " (" + prof + ")" : "") +
                             (settings.OnlyWhenSectionsOn ? ", " + Lang.T("main.onlySectionsShort") : "");
 
             lblCompact.Text = rec.Active
-                ? "● " + Exporter.FormatDuration(rec.Elapsed) + "   " + Ha(rec.DrivenArea) + " ha" +
+                ? "● " + Exporter.FormatDuration(rec.Elapsed) + "   " + Units.Area(rec.DrivenArea) +
                   (rx.HasPosition ? "" : "   " + Lang.T("main.noGpsShort"))
                 : (rx.HasPosition ? Lang.T("main.gpsOk") : Lang.T("gps.none")) + "  –  " + Lang.T("main.showMore");
             lblCompact.ForeColor = rx.HasPosition ? Ui.Dark : Ui.Red;
@@ -335,6 +360,7 @@ namespace AgPath
                         rec.OnlyWork = settings.OnlyWhenSectionsOn;
                     }
                     rec.MinStep = settings.MinStep;
+                    Units.Load(settings);
                     MapData.Write(settings, fields);
                     if (settings.Language != oldLang) ShowMsg(Lang.T("settings.restartForLanguage"), false);
                 }

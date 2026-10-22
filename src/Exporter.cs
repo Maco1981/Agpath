@@ -206,10 +206,10 @@ namespace AgPath
             desc.AppendLine(Lang.T("f.date") + ": " + LocalDate(r.StartTime));
             desc.AppendLine(Lang.T("f.start") + ": " + LocalTime(r.StartTime) + "  " + Lang.T("f.end") + ": " + LocalTime(r.EndTime));
             desc.AppendLine(Lang.T("f.duration") + ": " + FormatDuration(dur));
-            desc.AppendLine(Lang.T("f.distance") + ": " + (r.Distance / 1000.0).ToString("0.00", c) + " km");
-            desc.AppendLine(Lang.T("f.width") + ": " + r.Width.ToString("0.###", c) + " m");
-            desc.AppendLine(Lang.T("f.area") + ": " + (r.DrivenArea / 10000.0).ToString("0.00", c) + " ha");
-            desc.AppendLine(Lang.T("f.covered") + ": " + (r.Cover.AreaM2 / 10000.0).ToString("0.00", c) + " ha");
+            desc.AppendLine(Lang.T("f.distance") + ": " + Units.Dist(r.Distance));
+            desc.AppendLine(Lang.T("f.width") + ": " + Units.Width(r.Width));
+            desc.AppendLine(Lang.T("f.area") + ": " + Units.Area(r.DrivenArea));
+            desc.AppendLine(Lang.T("f.covered") + ": " + Units.Area(r.Cover.AreaM2));
             if (info.Notes != "") desc.AppendLine(Lang.T("f.notes") + ": " + info.Notes);
 
             StringBuilder sb = new StringBuilder();

@@ -29,6 +29,7 @@ f.covered = Bewerkte oppervlakte
 f.coveredHa = Bewerkte oppervlakte (ha)
 f.notes = Notities
 f.file = Bestand
+f.speed = Snelheid
 
 gps.fromAog = GPS: AgOpenGPS
 gps.fromAgio = GPS: AgIO
@@ -63,7 +64,7 @@ main.discarded = De rit is verworpen.
 main.mapMissing = De kaartmap ontbreekt (map\index.html).
 
 backup.title = Onvoltooide opname
-backup.text = De vorige opname is niet afgerond (bijv. stroomuitval).\nGestart {0}, {1} km, {2} punten.\n\nWat wilt u doen?
+backup.text = De vorige opname is niet afgerond (bijv. stroomuitval).\nGestart {0}, {1}, {2} punten.\n\nWat wilt u doen?
 backup.continue = Opname voortzetten
 backup.saveNow = Nu opslaan
 backup.discard = Verwerpen
@@ -103,7 +104,7 @@ settings.restartForLanguage = De nieuwe taal wordt gebruikt na het herstarten va
 settings.widthTitle = Werkbreedte (voor oppervlakteberekening)
 settings.widthFromAog = Werktuig gekozen in AgOpenGPS
 settings.notFound = niet gevonden
-settings.widthOwn = Eigen breedte, m:
+settings.widthOwn = Eigen breedte
 settings.fromProfile = (breedte uit profiel nemen)
 settings.onlySections = Oppervlakte alleen tellen als AgOpenGPS-secties aan staan
 settings.topMost = Venster altijd bovenaan
@@ -126,6 +127,14 @@ settings.saveFolder = Opslagmap
 settings.listenIp = Luisteradres (herstart nodig)
 settings.saveFolderHint = De deelbare kaart {0} staat in deze map. Deel de map (bijv. OneDrive), dan kunnen anderen hem op hun eigen computer openen.
 settings.browse = Bladeren
+settings.units = Eenheden
+settings.unitsAuto = Zelfde als AgOpenGPS ({0})
+settings.unitsMetric = Metrisch (km, ha, km/u, m)
+settings.unitsImperial = Imperiaal (mi, ac, mph, ft)
+settings.unitsMetricShort = metrisch
+settings.unitsImperialShort = imperiaal
+settings.recordingTitle = Opname
+settings.foldersTitle = Mappen
 
 map.sharedFile = AgPath-kaart.html
 
@@ -187,3 +196,6 @@ web.mmlBackground = Achtergrondkaart
 web.mmlPlain = Eenvoudige kaart
 web.mmlParcels = Kadastrale grenzen
 web.customMap = Eigen kaart
+web.areaShort = oppervlakte
+web.coveredShort = bewerkt
+web.distanceShort = afstand

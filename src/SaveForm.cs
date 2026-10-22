@@ -98,15 +98,15 @@ namespace AgPath
             Ui.TouchCombo(cbField);
             y += 44;
 
-            Ui.Lbl(this, Lang.T("f.widthM") + ":", 15, y + 4, 110, 28, 12);
+            Ui.Lbl(this, Lang.T("f.width") + " (" + Units.WidthUnit + "):", 15, y + 4, 110, 28, 12);
             nudWidth = new NumericUpDown();
             nudWidth.SetBounds(125, y, 110, 32);
             nudWidth.Font = Ui.F(14);
             nudWidth.DecimalPlaces = 2;
             nudWidth.Increment = 0.05m;
             nudWidth.Minimum = 0.05m;
-            nudWidth.Maximum = 100m;
-            nudWidth.Value = (decimal)Math.Max(0.05, Math.Min(100, rec.Width));
+            nudWidth.Maximum = 400m;
+            nudWidth.Value = (decimal)Math.Max(0.05, Math.Min(400, Math.Round(Units.WidthValue(rec.Width), 2)));
             Controls.Add(nudWidth);
             chkOnlyWork = new CheckBox();
             chkOnlyWork.Text = Lang.T("save.onlySections");
@@ -188,7 +188,7 @@ namespace AgPath
 
         void Recalc()
         {
-            rec.Width = (double)nudWidth.Value;
+            rec.Width = Units.WidthToMeters((double)nudWidth.Value);
             rec.OnlyWork = chkOnlyWork.Checked;
             rec.Recompute();
             UpdateSummary();
@@ -200,9 +200,9 @@ namespace AgPath
             lblSummary.Text =
                 rec.StartTime.ToString("D", Fi) + "   " + rec.StartTime.ToString("HH:mm:ss") +
                 " – " + rec.EndTime.ToString("HH:mm:ss") + "   (" + Exporter.FormatDuration(dur) + ")\n" +
-                Lang.T("f.distance") + " " + (rec.Distance / 1000.0).ToString("0.00", Fi) + " km,  " +
-                Lang.T("f.area") + " " + (rec.DrivenArea / 10000.0).ToString("0.00", Fi) + " ha,  " +
-                Lang.T("f.covered") + " " + (rec.Cover.AreaM2 / 10000.0).ToString("0.00", Fi) + " ha\n" +
+                Lang.T("f.distance") + " " + Units.Dist(rec.Distance) + ",  " +
+                Lang.T("f.area") + " " + Units.Area(rec.DrivenArea) + ",  " +
+                Lang.T("f.covered") + " " + Units.Area(rec.Cover.AreaM2) + "\n" +
                 Lang.T("save.points", rec.Points.Count) + (rec.SegmentCount > 1 ? ", " + Lang.T("save.parts", rec.SegmentCount) : "");
         }
 

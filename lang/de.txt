@@ -29,6 +29,7 @@ f.covered = Bearbeitete Fläche
 f.coveredHa = Bearbeitete Fläche (ha)
 f.notes = Notizen
 f.file = Datei
+f.speed = Geschwindigkeit
 
 gps.fromAog = GPS: AgOpenGPS
 gps.fromAgio = GPS: AgIO
@@ -63,7 +64,7 @@ main.discarded = Die Fahrt wurde verworfen.
 main.mapMissing = Der Kartenordner fehlt (map\index.html).
 
 backup.title = Unvollständige Aufzeichnung
-backup.text = Die letzte Aufzeichnung wurde nicht beendet (z. B. Stromausfall).\nGestartet {0}, {1} km, {2} Punkte.\n\nWas möchten Sie tun?
+backup.text = Die letzte Aufzeichnung wurde nicht beendet (z. B. Stromausfall).\nGestartet {0}, {1}, {2} Punkte.\n\nWas möchten Sie tun?
 backup.continue = Aufzeichnung fortsetzen
 backup.saveNow = Jetzt speichern
 backup.discard = Verwerfen
@@ -103,7 +104,7 @@ settings.restartForLanguage = Die neue Sprache gilt nach einem Neustart von AgPa
 settings.widthTitle = Arbeitsbreite (für die Flächenberechnung)
 settings.widthFromAog = In AgOpenGPS gewähltes Gerät
 settings.notFound = nicht gefunden
-settings.widthOwn = Eigene Breite, m:
+settings.widthOwn = Eigene Breite
 settings.fromProfile = (Breite aus Profil übernehmen)
 settings.onlySections = Fläche nur zählen, wenn AgOpenGPS-Teilbreiten an sind
 settings.topMost = Fenster immer im Vordergrund
@@ -126,6 +127,14 @@ settings.saveFolder = Speicherordner
 settings.listenIp = Empfangsadresse (Neustart nötig)
 settings.saveFolderHint = Die teilbare Karte {0} wird in diesem Ordner gespeichert. Ordner teilen (z. B. OneDrive), dann können andere sie auf ihrem eigenen Computer öffnen.
 settings.browse = Durchsuchen
+settings.units = Einheiten
+settings.unitsAuto = Wie AgOpenGPS ({0})
+settings.unitsMetric = Metrisch (km, ha, km/h, m)
+settings.unitsImperial = Imperial (mi, ac, mph, ft)
+settings.unitsMetricShort = metrisch
+settings.unitsImperialShort = imperial
+settings.recordingTitle = Aufzeichnung
+settings.foldersTitle = Ordner
 
 map.sharedFile = AgPath-Karte.html
 
@@ -187,3 +196,6 @@ web.mmlBackground = Hintergrundkarte
 web.mmlPlain = Einfache Karte
 web.mmlParcels = Flurstücksgrenzen
 web.customMap = Eigene Karte
+web.areaShort = Fläche
+web.coveredShort = bearbeitet
+web.distanceShort = Strecke

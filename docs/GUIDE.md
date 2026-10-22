@@ -117,6 +117,8 @@ choose **OpenStreetMap** as the base map.
 ![Settings](images/en-settings.png)
 
 * **Language**: by default the same as AgOpenGPS. A new language is used after AgPath is restarted.
+* **Units**: by default the same as AgOpenGPS (metric: km, ha, km/h, m; or imperial: mi, ac, mph, ft).
+  You can choose them yourself. Saved files always use metric units.
 * **Working width**: the tool selected in AgOpenGPS, or your own width. You can also copy the width from
   any AgOpenGPS tool profile.
 * **Count area only when AgOpenGPS sections are on**: sets the default for the save window.

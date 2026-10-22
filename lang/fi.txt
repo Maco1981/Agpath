@@ -29,6 +29,7 @@ f.covered = Katettu ala
 f.coveredHa = Katettu ala (ha)
 f.notes = Lisätiedot
 f.file = Tiedosto
+f.speed = Nopeus
 
 gps.fromAog = GPS: AgOpenGPS
 gps.fromAgio = GPS: AgIO
@@ -63,7 +64,7 @@ main.discarded = Ajo hylättiin.
 main.mapMissing = Karttakansio puuttuu (map\index.html).
 
 backup.title = Keskeneräinen tallennus
-backup.text = Edellinen tallennus jäi kesken (esim. virta katkesi).\nAloitettu {0}, {1} km, {2} pistettä.\n\nMitä tehdään?
+backup.text = Edellinen tallennus jäi kesken (esim. virta katkesi).\nAloitettu {0}, {1}, {2} pistettä.\n\nMitä tehdään?
 backup.continue = Jatka tallennusta
 backup.saveNow = Tallenna nyt
 backup.discard = Hylkää
@@ -103,7 +104,7 @@ settings.restartForLanguage = Uusi kieli otetaan käyttöön, kun AgPath käynni
 settings.widthTitle = Työleveys (pinta-alan laskentaan)
 settings.widthFromAog = AgOpenGPS:n valittu työkone
 settings.notFound = ei löytynyt
-settings.widthOwn = Oma leveys, m:
+settings.widthOwn = Oma leveys
 settings.fromProfile = (ota leveys profiilista)
 settings.onlySections = Laske ala vain kun AgOpenGPS:n työlohkot ovat päällä
 settings.topMost = Ikkuna aina päällimmäisenä
@@ -126,6 +127,14 @@ settings.saveFolder = Tallennuskansio
 settings.listenIp = Kuunteluosoite (vaatii uudelleenkäynnistyksen)
 settings.saveFolderHint = Tähän kansioon tallentuu jaettava kartta {0}. Kun jaat kansion (esim. OneDrive), muut voivat avata kartan omalla koneellaan.
 settings.browse = Selaa
+settings.units = Mittayksiköt
+settings.unitsAuto = Sama kuin AgOpenGPS:ssä ({0})
+settings.unitsMetric = Metrinen (km, ha, km/h, m)
+settings.unitsImperial = Brittiläinen (mi, ac, mph, ft)
+settings.unitsMetricShort = metrinen
+settings.unitsImperialShort = brittiläinen
+settings.recordingTitle = Tallennus
+settings.foldersTitle = Kansiot
 
 map.sharedFile = AgPath-kartta.html
 
@@ -188,3 +197,6 @@ web.mmlBackground = Taustakartta
 web.mmlPlain = Selkokartta
 web.mmlParcels = Kiinteistörajat
 web.customMap = Oma kartta
+web.areaShort = ala
+web.coveredShort = katettu
+web.distanceShort = matka

@@ -117,6 +117,8 @@ karttapohjaksi **OpenStreetMap**.
 ![Asetukset](images/fi-settings.png)
 
 * **Kieli**: oletuksena sama kuin AgOpenGPS:ssä. Uusi kieli tulee käyttöön, kun AgPath käynnistetään uudelleen.
+* **Mittayksiköt**: oletuksena samat kuin AgOpenGPS:ssä (metrinen: km, ha, km/h, m tai brittiläinen: mi, ac, mph, ft).
+  Voit valita ne myös itse. Tallennetut tiedostot ovat aina metrisinä.
 * **Työleveys**: AgOpenGPS:n valittu työkone tai oma leveys. Leveyden voi ottaa myös mistä tahansa
   AgOpenGPS:n työkoneprofiilista.
 * **Laske ala vain kun AgOpenGPS:n työlohkot ovat päällä**: tallennusikkunan oletusvalinta.

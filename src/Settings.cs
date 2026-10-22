@@ -18,6 +18,7 @@ namespace AgPath
         public string ListenIp = "127.77.0.1";
         public double MinStep = 0.3;          // m, minimum distance between points
         public bool TopMost = true;
+        public string Units = "auto";        // auto | metric | imperial
         public string MinFix = "all";        // all | float | fix : which GPS quality is recorded
         public int WinX = -1, WinY = -1;
         public bool Compact = false;
@@ -62,6 +63,7 @@ namespace AgPath
                             case "window_y": case "ikkuna_y": s.WinY = (int)ParseD(v, -1); break;
                             case "compact": case "pieni_tila": s.Compact = v == "1"; break;
                             case "language": s.Language = v; break;
+                            case "units": s.Units = (v == "metric" || v == "imperial") ? v : "auto"; break;
                             case "min_fix": s.MinFix = (v == "fix" || v == "float") ? v : "all"; break;
                             case "map_provider": s.MapProvider = v; break;
                             case "mml_api_key": s.MmlApiKey = v; break;
@@ -97,6 +99,7 @@ namespace AgPath
                 sb.AppendLine("listen_ip=" + ListenIp);
                 sb.AppendLine("min_point_distance=" + D(MinStep));
                 sb.AppendLine("min_fix=" + MinFix);
+                sb.AppendLine("units=" + Units);
                 sb.AppendLine("always_on_top=" + (TopMost ? "1" : "0"));
                 sb.AppendLine("window_x=" + WinX);
                 sb.AppendLine("window_y=" + WinY);

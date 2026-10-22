@@ -21,6 +21,7 @@ namespace AgPath
             {
                 Settings settings = Settings.Load();
                 Lang.Load(settings.Language);
+                Units.Load(settings);
                 if (!createdNew)
                 {
                     MessageBox.Show(Lang.T("app.alreadyRunning"), "AgPath", MessageBoxButtons.OK, MessageBoxIcon.Information);

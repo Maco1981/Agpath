@@ -30,6 +30,7 @@ f.covered = Covered area
 f.coveredHa = Covered area (ha)
 f.notes = Notes
 f.file = File
+f.speed = Speed
 
 gps.fromAog = GPS: AgOpenGPS
 gps.fromAgio = GPS: AgIO
@@ -64,7 +65,7 @@ main.discarded = The run was discarded.
 main.mapMissing = The map folder is missing (map\index.html).
 
 backup.title = Unfinished recording
-backup.text = The previous recording was not finished (e.g. power loss).\nStarted {0}, {1} km, {2} points.\n\nWhat do you want to do?
+backup.text = The previous recording was not finished (e.g. power loss).\nStarted {0}, {1}, {2} points.\n\nWhat do you want to do?
 backup.continue = Continue recording
 backup.saveNow = Save now
 backup.discard = Discard
@@ -104,7 +105,7 @@ settings.restartForLanguage = The new language is used after restarting AgPath.
 settings.widthTitle = Working width (for area calculation)
 settings.widthFromAog = Tool selected in AgOpenGPS
 settings.notFound = not found
-settings.widthOwn = Own width, m:
+settings.widthOwn = Own width
 settings.fromProfile = (take width from a profile)
 settings.onlySections = Count area only when AgOpenGPS sections are on
 settings.topMost = Window always on top
@@ -127,6 +128,14 @@ settings.saveFolder = Save folder
 settings.listenIp = Listen address (restart needed)
 settings.saveFolderHint = The shareable map {0} is kept in this folder. Share the folder (e.g. OneDrive) and others can open it on their own computer.
 settings.browse = Browse
+settings.units = Units
+settings.unitsAuto = Same as AgOpenGPS ({0})
+settings.unitsMetric = Metric (km, ha, km/h, m)
+settings.unitsImperial = Imperial (mi, ac, mph, ft)
+settings.unitsMetricShort = metric
+settings.unitsImperialShort = imperial
+settings.recordingTitle = Recording
+settings.foldersTitle = Folders
 
 map.sharedFile = AgPath-map.html
 
@@ -189,3 +198,6 @@ web.mmlBackground = Background map
 web.mmlPlain = Plain map
 web.mmlParcels = Property boundaries
 web.customMap = Custom map
+web.areaShort = area
+web.coveredShort = covered
+web.distanceShort = distance
