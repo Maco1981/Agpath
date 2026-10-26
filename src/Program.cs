@@ -17,6 +17,15 @@ namespace AgPath
         static void Main(string[] args)
         {
             AppDir = Path.GetDirectoryName(Application.ExecutablePath);
+            if (args.Length >= 2 && args[0] == "--bg-test")
+            {
+                // diagnostics: add the aerial photo background to the field folder args[1]
+                Settings st = Settings.Load();
+                Lang.Load(st.Language);
+                try { BackgroundMap.Add(args[1], st.MmlApiKey); File.WriteAllText(Path.Combine(args[1], "bg_test.txt"), "OK"); }
+                catch (Exception ex) { File.WriteAllText(Path.Combine(args[1], "bg_test.txt"), "ERROR " + ex); }
+                return;
+            }
             if (args.Length >= 3 && args[0] == "--parcel-test")
             {
                 // diagnostics: around lat,lon (args[1]) create fields for all parcels into folder args[2]\Fields
