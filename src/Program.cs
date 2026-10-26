@@ -13,9 +13,16 @@ namespace AgPath
         public const string Version = "1.2.1";
 
         [STAThread]
-        static void Main()
+        static void Main(string[] args)
         {
             AppDir = Path.GetDirectoryName(Application.ExecutablePath);
+            if (args.Length >= 2 && args[0] == "--agrineuvos")
+            {
+                // separate worker process that enters runs into Agrineuvos (started by AgrineuvosForm)
+                Lang.Load(Settings.Load().Language);
+                AgrineuvosAuto.RunJobFile(args[1]);
+                return;
+            }
             bool createdNew;
             using (Mutex m = new Mutex(true, "AgPath_single_instance", out createdNew))
             {
