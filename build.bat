@@ -11,5 +11,8 @@ if errorlevel 1 (
   exit /b 1
 )
 "%CSC%" /nologo /codepage:65001 /target:exe /out:tools\TestSender.exe tools\TestSender.cs >> build_log.txt 2>&1
+set WPF=%WINDIR%\Microsoft.NET\Framework64\v4.0.30319\WPF
+if not exist "%WPF%" set WPF=%WINDIR%\Microsoft.NET\Framework\v4.0.30319\WPF
+"%CSC%" /nologo /codepage:65001 /target:winexe /out:tools\AnInspect.exe /r:"%WPF%\UIAutomationClient.dll" /r:"%WPF%\UIAutomationTypes.dll" /r:"%WPF%\WindowsBase.dll" tools\AnInspect.cs >> build_log.txt 2>&1
 echo OK >> build_log.txt
 type build_log.txt
