@@ -259,3 +259,4 @@ an.err.covered = Jokin ikkuna peittää Agrineuvoksen. Siirrä se pois ja yritä
 an.err.notSaved = Agrineuvos ei sulkenut tietoikkunaa. Tarkista tilanne Agrineuvoksessa.
 an.err.message = Agrineuvos näytti ilmoituksen. Lue se Agrineuvoksesta.
 an.err.timeout = Kirjaus kesti liian kauan ja keskeytettiin. Tarkista tilanne Agrineuvoksessa.
+an.err.seasonNew = Kasvukautta {0} ei ole vielä perustettu Agrineuvoksessa: Agrineuvos avasi sen asetusikkunan. Mitään ei tallennettu. Perusta kasvukausi ensin Agrineuvoksessa (tai sulje ikkuna).

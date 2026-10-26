@@ -260,3 +260,4 @@ an.err.covered = Another window covers Agrineuvos. Move it away and try again.
 an.err.notSaved = Agrineuvos did not close the details window. Check it in Agrineuvos.
 an.err.message = Agrineuvos showed a message. Read it in Agrineuvos.
 an.err.timeout = Entering took too long and was stopped. Check the result in Agrineuvos.
+an.err.seasonNew = Growing season {0} has not been set up in Agrineuvos yet: Agrineuvos opened its settings window. Nothing was saved. Set up the season in Agrineuvos first (or close the window).

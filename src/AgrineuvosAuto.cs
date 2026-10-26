@@ -323,12 +323,23 @@ namespace AgPath
                 if (++guard > 30) throw new AnException(T("an.err.seasonMissing", year));
                 FocusMain();
                 // Ctrl+Q = previous season, Ctrl+W = next season (Agrineuvos shortcuts)
+                int next = cur > year ? cur - 1 : cur + 1;
                 KeyCombo(VK_CONTROL, cur > year ? (ushort)'Q' : (ushort)'W');
+                // a season that has not been set up yet opens its settings window: stop and leave it to the user
+                for (int i = 0; i < 20; i++)
+                {
+                    Sleep(100);
+                    if (!IsWindowEnabled(mainWnd)) throw new AnException(T("an.err.seasonNew", next));
+                }
                 int before = cur;
-                for (int i = 0; i < 40 && cur == before; i++) { Sleep(250); cur = CurrentSeason(); }
+                for (int i = 0; i < 10 && cur == before; i++)
+                {
+                    if (!IsWindowEnabled(mainWnd)) throw new AnException(T("an.err.seasonNew", next));
+                    cur = CurrentSeason();
+                    if (cur == before) Sleep(300);
+                }
                 if (cur == before) throw new AnException(T("an.err.seasonMissing", year));
                 L("Season -> " + cur);
-                if (!IsWindowEnabled(mainWnd)) throw new AnException(T("an.err.seasonMissing", year));
             }
         }
 
