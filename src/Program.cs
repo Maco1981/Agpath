@@ -2,6 +2,7 @@
 // Copyright 2026 AgPath contributors. Licensed under the Apache License 2.0, see LICENSE.
 using System;
 using System.IO;
+using System.Text;
 using System.Threading;
 using System.Windows.Forms;
 
@@ -16,6 +17,34 @@ namespace AgPath
         static void Main(string[] args)
         {
             AppDir = Path.GetDirectoryName(Application.ExecutablePath);
+            if (args.Length >= 3 && args[0] == "--parcel-test")
+            {
+                // diagnostics: around lat,lon (args[1]) create fields for all parcels into folder args[2]\Fields
+                Lang.Load(Settings.Load().Language);
+                StringBuilder sb = new StringBuilder();
+                try
+                {
+                    string[] ll = args[1].Split(',');
+                    double la = double.Parse(ll[0], System.Globalization.CultureInfo.InvariantCulture);
+                    double lo = double.Parse(ll[1], System.Globalization.CultureInfo.InvariantCulture);
+                    double e, n;
+                    Tm35.ToTm(la, lo, out e, out n);
+                    int yr = ParcelImport.LatestYear();
+                    sb.AppendLine("year " + yr + " tm " + e + " " + n);
+                    System.Collections.Generic.List<Parcel> ps = ParcelImport.Fetch(yr, new double[] { e - 400, n - 400, e + 400, n + 400 }, null);
+                    FieldDetector fd = new FieldDetector();
+                    fd.Load(Settings.Load().AogBaseDir);
+                    Directory.CreateDirectory(Path.Combine(args[2], "Fields"));
+                    foreach (Parcel p in ps)
+                    {
+                        sb.AppendLine(p.Tunnus + "\t" + p.AreaHa + "\t" + p.Crops + "\t" + p.Ring.Count + "\t" + p.CLat + "," + p.CLon + "\t" + fd.FieldAt(p.CLat, p.CLon));
+                        ParcelImport.CreateField(args[2], "T" + p.Tunnus, p);
+                    }
+                }
+                catch (Exception ex) { sb.AppendLine("ERROR " + ex); }
+                File.WriteAllText(Path.Combine(args[2], "parcel_test.txt"), sb.ToString());
+                return;
+            }
             if (args.Length >= 2 && args[0] == "--agrineuvos")
             {
                 // separate worker process that enters runs into Agrineuvos (started by AgrineuvosForm)
