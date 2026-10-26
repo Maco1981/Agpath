@@ -203,9 +203,9 @@ namespace AgPath
             lv.View = View.Details; lv.CheckBoxes = true; lv.FullRowSelect = true; lv.HideSelection = false;
             lv.SetBounds(12, 96, 976, 330);
             lv.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            lv.Columns.Add(Lang.T("an.col.date"), 120);
+            lv.Columns.Add(Lang.T("an.col.date"), 150);
             lv.Columns.Add(Lang.T("an.col.field"), 130);
-            lv.Columns.Add(Lang.T("an.col.product"), 190);
+            lv.Columns.Add(Lang.T("an.col.product"), 170);
             lv.Columns.Add(Lang.T("an.col.area"), 70, HorizontalAlignment.Right);
             lv.Columns.Add(Lang.T("an.col.lohko"), 110);
             lv.Columns.Add(Lang.T("an.col.item"), 190);
