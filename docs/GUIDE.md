@@ -127,7 +127,8 @@ not match, it cancels that entry and saves nothing.
 2. Press **Agrineuvos** in AgPath. The list shows the runs not entered yet.
 3. Click a run and fill in once: the **Agrineuvos field ID** (e.g. `1-A`, remembered for this AgOpenGPS field),
    the **supply** exactly as in Agrineuvos (e.g. `Kaura Luukas 2025`, remembered for this product and variety),
-   and optionally the **amount/ha**.
+   optionally the **amount/ha**, and optionally the **area** for this run if it should differ from the measured
+   area (empty = measured area).
 4. Choose whether the area is the **covered area** or the **driven area**.
 5. Tick the runs and press **Enter ticked runs into Agrineuvos**. Don't use the mouse or keyboard until AgPath
    says it is done (about 20 s per run).

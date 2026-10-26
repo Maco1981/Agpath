@@ -129,7 +129,8 @@ AgPath peruu kyseisen kirjauksen eikä tallenna mitään.
 3. Napauta ajoa ja täytä kerran:
    * **Agrineuvoksen lohkotunnus**, esim. `1-A` (muistetaan tälle AgOpenGPS-lohkolle),
    * **Tarvike** täsmälleen kuten Agrineuvoksessa, esim. `Kaura Luukas 2025` (muistetaan tälle tuotteelle ja lajikkeelle),
-   * halutessasi **Määrä/ha**.
+   * halutessasi **Määrä/ha** (esim. kylvömäärä tarvikkeen yksikössä),
+   * halutessasi **Pinta-ala** tälle ajolle, jos haluat kirjata eri alan kuin AgPath mittasi (tyhjä = mitattu ala).
 4. Valitse, kirjataanko pinta-alaksi **katettu ala** vai **ajettu ala**.
 5. Rastita kirjattavat ajot ja paina **Kirjaa valitut Agrineuvokseen**. Älä käytä hiirtä tai näppäimistöä ennen
    kuin AgPath ilmoittaa valmistuneensa (noin 20 s / ajo).

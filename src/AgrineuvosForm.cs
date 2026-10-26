@@ -180,7 +180,7 @@ namespace AgPath
             TopMost = true;
             BackColor = Color.White;
             Font = Ui.F(10);
-            ClientSize = new Size(1000, 640);
+            ClientSize = new Size(1000, 660);
             MinimumSize = new Size(800, 520);
             try { Icon = Icon.ExtractAssociatedIcon(Application.ExecutablePath); } catch { }
 
@@ -221,29 +221,33 @@ namespace AgPath
             y += 32;
             GroupBox g = new GroupBox();
             g.Text = Lang.T("an.mapping");
-            g.SetBounds(12, y, 976, 130);
+            g.SetBounds(12, y, 976, 144);
             g.Anchor = AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             Controls.Add(g);
             lblSel = Ui.Lbl(g, "", 12, 22, 950, 22, 9);
             lblSel.ForeColor = Color.DimGray;
-            Ui.Lbl(g, Lang.T("an.lohko") + ":", 12, 52, 200, 22, 9);
-            tbLohko = new TextBox(); tbLohko.SetBounds(12, 76, 150, 28); g.Controls.Add(tbLohko);
-            Ui.Lbl(g, Lang.T("an.item") + ":", 176, 52, 400, 22, 9);
-            tbItem = new TextBox(); tbItem.SetBounds(176, 76, 380, 28); g.Controls.Add(tbItem);
-            Ui.Lbl(g, Lang.T("an.amount") + ":", 570, 52, 150, 22, 9);
-            tbAmount = new TextBox(); tbAmount.SetBounds(570, 76, 110, 28); g.Controls.Add(tbAmount);
-            Ui.Lbl(g, Lang.T("an.areaThis") + ":", 694, 52, 200, 22, 9);
-            tbArea = new TextBox(); tbArea.SetBounds(694, 76, 110, 28); g.Controls.Add(tbArea);
-            Button kb = Ui.Btn(g, "⌨", 818, 74, 44, 30, Ui.Grey, 12);
+            // labels above the boxes, each exactly as wide as its box (two lines allowed)
+            int[] xs = { 12, 182, 542, 712 }, ws = { 160, 350, 160, 160 };
+            string[] keys = { "an.lohko", "an.item", "an.amount", "an.areaThis" };
+            for (int i = 0; i < 4; i++)
+            {
+                Label l = Ui.Lbl(g, Lang.T(keys[i]), xs[i], 46, ws[i], 38, 9);
+                l.TextAlign = ContentAlignment.BottomLeft;
+            }
+            tbLohko = new TextBox(); tbLohko.SetBounds(xs[0], 86, ws[0], 28); g.Controls.Add(tbLohko);
+            tbItem = new TextBox(); tbItem.SetBounds(xs[1], 86, ws[1], 28); g.Controls.Add(tbItem);
+            tbAmount = new TextBox(); tbAmount.SetBounds(xs[2], 86, ws[2], 28); g.Controls.Add(tbAmount);
+            tbArea = new TextBox(); tbArea.SetBounds(xs[3], 86, ws[3], 28); g.Controls.Add(tbArea);
+            Button kb = Ui.Btn(g, "⌨", 884, 84, 50, 30, Ui.Grey, 12);
             kb.Click += delegate { Ui.Keyboard(); };
-            Label hint = Ui.Lbl(g, Lang.T("an.mappingHint"), 12, 106, 950, 20, 8);
+            Label hint = Ui.Lbl(g, Lang.T("an.mappingHint"), 12, 118, 950, 20, 8);
             hint.ForeColor = Color.DimGray;
             tbLohko.TextChanged += delegate { EditMapping(); };
             tbItem.TextChanged += delegate { EditMapping(); };
             tbAmount.TextChanged += delegate { EditMapping(); };
             tbArea.TextChanged += delegate { EditArea(); };
 
-            y += 140;
+            y += 154;
             lblStatus = Ui.Lbl(this, "", 12, y + 6, 560, 44, 9);
             lblStatus.Anchor = AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             btnExport = Ui.Btn(this, Lang.T("an.export"), 588, y, 260, 50, Ui.Green, 11);
