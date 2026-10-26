@@ -441,7 +441,7 @@ namespace AgPath
             }
             if (grid == IntPtr.Zero) throw new AnException(T("an.err.tab"));
             RECT r = Rect(grid);
-            RightClickAt(r.L + (r.R - r.L) / 2, r.T + (r.B - r.T) * 3 / 4);
+            RightClickAt(r.L + (int)(80 * scale), r.T + (r.B - r.T) * 3 / 4);
             AutomationElement item = null;
             for (int i = 0; i < 20 && item == null; i++)
             {
