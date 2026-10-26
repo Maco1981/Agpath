@@ -188,6 +188,12 @@ namespace AgPath
 
         static bool BackToMain()
         {
+            try { return BackToMainInner(); }
+            catch (Exception ex) { L("BackToMain: " + ex.Message); return false; }
+        }
+
+        static bool BackToMainInner()
+        {
             // close our own dialogs if one was left open; anything else is left for the user
             for (int i = 0; i < 3; i++)
             {
@@ -199,7 +205,7 @@ namespace AgPath
                     if (d == IntPtr.Zero) continue;
                     IntPtr cancel = FindChild(d, "TButton", "Peruuta");
                     if (cancel == IntPtr.Zero) cancel = FindChild(d, "TButton", "Cancel");
-                    if (cancel != IntPtr.Zero) { Fore(d); ClickWnd(cancel); Sleep(1000); }
+                    if (cancel != IntPtr.Zero) { PressButton(cancel); Sleep(1000); }
                 }
             }
             return IsWindowEnabled(mainWnd);
@@ -360,7 +366,7 @@ namespace AgPath
             IntPtr search = tree == IntPtr.Zero ? IntPtr.Zero : FieldSearch(tree);
             if (search == IntPtr.Zero) throw new AnException(T("an.err.fieldList"));
             FocusMain();
-            ClickWnd(search);
+            FocusCtl(search);
             ReplaceText(lohko);
             Sleep(1500);
             int[] cnt = FieldCount();
@@ -406,7 +412,7 @@ namespace AgPath
             IntPtr search = tree == IntPtr.Zero ? IntPtr.Zero : FieldSearch(tree);
             if (search == IntPtr.Zero || GetText(search) == "") return;
             FocusMain();
-            ClickWnd(search);
+            FocusCtl(search);
             ReplaceText("");
             Sleep(500);
         }
@@ -426,7 +432,10 @@ namespace AgPath
                     new PropertyCondition(AutomationElement.ControlTypeProperty, ControlType.TabItem),
                     new PropertyCondition(AutomationElement.NameProperty, "Toteutettu")));
                 if (tab == null) throw new AnException(T("an.err.tab"));
-                ClickElement(tab);
+                object sip;
+                if (tab.TryGetCurrentPattern(SelectionItemPattern.Pattern, out sip)) { try { ((SelectionItemPattern)sip).Select(); } catch { } }
+                for (int i = 0; i < 10 && !IsWindowVisible(sheet); i++) Sleep(100);
+                if (!IsWindowVisible(sheet)) ClickElement(tab);
                 for (int i = 0; i < 20 && !IsWindowVisible(sheet); i++) Sleep(100);
                 Sleep(500);
                 if (!IsWindowVisible(sheet)) throw new AnException(T("an.err.tab"));
@@ -442,15 +451,29 @@ namespace AgPath
             if (grid == IntPtr.Zero) throw new AnException(T("an.err.tab"));
             RECT r = Rect(grid);
             L("Operations list at " + r.L + "," + r.T + " - " + r.R + "," + r.B);
-            RightClickAt(r.L + (int)(80 * scale), r.T + (r.B - r.T) * 3 / 4);
+            // open the list's context menu with the keyboard (Shift+F10); use the mouse only if needed
+            FocusCtl(grid);
+            KeyCombo(VK_SHIFT, VK_F10);
             AutomationElement item = null;
-            for (int i = 0; i < 20 && item == null; i++)
+            for (int i = 0; i < 10 && item == null; i++) { Sleep(200); item = FindMenuItem("Lisää tapahtuma"); }
+            if (item == null)
             {
-                Sleep(200);
-                item = FindMenuItem("Lisää tapahtuma");
+                KeyPress(VK_ESCAPE);
+                RightClickAt(r.L + (int)(80 * scale), r.T + (r.B - r.T) * 3 / 4);
+                for (int i = 0; i < 15 && item == null; i++) { Sleep(200); item = FindMenuItem("Lisää tapahtuma"); }
             }
             if (item == null) { KeyPress(VK_ESCAPE); throw new AnException(T("an.err.menu")); }
-            ClickElement(item);
+            object ip;
+            if (item.TryGetCurrentPattern(InvokePattern.Pattern, out ip))
+            {
+                // Invoke can block until the dialog it opens is closed, so do it on another thread
+                InvokePattern inv = (InvokePattern)ip;
+                Thread t = new Thread(delegate() { try { inv.Invoke(); } catch (Exception ex) { L("Invoke: " + ex.Message); } });
+                t.IsBackground = true;
+                t.SetApartmentState(ApartmentState.MTA);
+                t.Start();
+            }
+            else ClickElement(item);
         }
 
         static AutomationElement FindMenuItem(string name)
@@ -480,7 +503,7 @@ namespace AgPath
             IntPtr showAll = FindChild(dlg, "TCheckBox", "Näytä kaikki");
             if (showAll != IntPtr.Zero && SendMessage(showAll, BM_GETCHECK, IntPtr.Zero, IntPtr.Zero) == IntPtr.Zero)
             {
-                ClickWnd(showAll);
+                PressButton(showAll);
                 Sleep(800);
             }
             IntPtr search = IntPtr.Zero, source = IntPtr.Zero;
@@ -497,12 +520,11 @@ namespace AgPath
                 }
             }
             if (search == IntPtr.Zero || source == IntPtr.Zero) throw new AnException(T("an.err.addDialog"));
-            ClickWnd(search);
+            FocusCtl(search);
             ReplaceText(item);
             Sleep(1500);
-            // focus the result list without hitting a row (click the empty area at the bottom), then
-            // Home = first result, Down = next ones
-            ClickAt(sr.L + (sr.R - sr.L) / 3, sr.B - (int)(8 * scale));
+            // focus the result list, then Home = first result, Down = next ones
+            FocusCtl(source);
             Sleep(300);
             KeyPress(VK_HOME);
             for (int i = 0; i < index; i++) { Sleep(150); KeyPress(VK_DOWN); }
@@ -518,11 +540,10 @@ namespace AgPath
                 if (r.T < topY) { topY = r.T; moveBtn = h; }
             }
             if (moveBtn == IntPtr.Zero || okBtn == IntPtr.Zero) throw new AnException(T("an.err.addDialog"));
-            ClickWnd(moveBtn);
+            ClickCtl(moveBtn);
             Sleep(800);
             if (!IsWindowEnabled(okBtn)) return false; // nothing was selected: no such result
-            // make sure details are asked for the selected row (opens the edit dialog)
-            ClickWnd(okBtn);
+            PressButton(okBtn);
             return true;
         }
 
@@ -530,7 +551,7 @@ namespace AgPath
         {
             IntPtr cancel = FindChild(dlg, "TButton", "Peruuta");
             if (cancel == IntPtr.Zero) { Fore(dlg); KeyPress(VK_ESCAPE); }
-            else { Fore(dlg); ClickWnd(cancel); }
+            else PressButton(cancel);
             for (int i = 0; i < 30 && IsWindow(dlg) && IsWindowVisible(dlg); i++) Sleep(100);
         }
 
@@ -570,14 +591,14 @@ namespace AgPath
                 throw new AnException(T("an.err.editDialog"));
 
             // date
-            ClickWnd(dateEdit);
+            FocusCtl(dateEdit);
             KeyPress(VK_HOME);
             TypeText(j.Date.ToString("ddMMyyyy", CultureInfo.InvariantCulture));
             KeyPress(VK_TAB);
             Sleep(300);
             // area
             string areaVal = j.AreaHa.ToString("0.00", CultureInfo.InvariantCulture).Replace('.', dec);
-            ClickWnd(area);
+            FocusCtl(area);
             ReplaceText(areaVal);
             KeyPress(VK_TAB);
             Sleep(300);
@@ -585,7 +606,7 @@ namespace AgPath
             string amount = (j.Amount ?? "").Trim().Replace('.', dec).Replace(',', dec);
             if (amount != "")
             {
-                ClickWnd(perHa);
+                FocusCtl(perHa);
                 ReplaceText(amount);
                 KeyPress(VK_TAB);
                 Sleep(300);
@@ -593,7 +614,7 @@ namespace AgPath
             // info
             if (memo != IntPtr.Zero && j.Info.Trim() != "")
             {
-                ClickWnd(memo);
+                FocusCtl(memo);
                 KeyCombo(VK_CONTROL, VK_END);
                 if (GetText(memo).Trim() != "") KeyPress(VK_RETURN);
                 TypeText(j.Info.Trim());
@@ -618,7 +639,7 @@ namespace AgPath
             }
             if (!IsForegroundOurs()) { CancelDialog(ed); throw new AnException(T("an.err.focus")); }
 
-            ClickWnd(ok);
+            PressButton(ok);
             for (int i = 0; i < 50 && IsWindow(ed) && IsWindowVisible(ed); i++) Sleep(100);
             if (IsWindow(ed) && IsWindowVisible(ed)) throw new AnException(T("an.err.notSaved"));
             Sleep(800);
@@ -655,6 +676,50 @@ namespace AgPath
             KeyCombo(VK_SHIFT, VK_HOME);
             KeyPress(VK_DELETE);
             if (text != "") TypeText(text);
+        }
+
+        /// <summary>Gives keyboard focus to a control of the foreground Agrineuvos window.</summary>
+        static void FocusCtl(IntPtr h)
+        {
+            IntPtr top = GetAncestor(h, 2);
+            Fore(top);
+            uint dummy;
+            uint target = GetWindowThreadProcessId(h, out dummy);
+            uint me = GetCurrentThreadId();
+            bool att = AttachThreadInput(me, target, true);
+            try
+            {
+                SetFocus(h);
+                Sleep(150);
+                IntPtr f = GetFocus();
+                if (f != h && !IsChild(h, f))
+                {
+                    L("SetFocus did not stick (" + Cls(f) + "), clicking instead");
+                    ClickWnd(h);
+                }
+            }
+            finally { if (att) AttachThreadInput(me, target, false); }
+            Sleep(100);
+        }
+
+        /// <summary>Presses a standard button or check box with BM_CLICK (works even if it is covered).</summary>
+        static void PressButton(IntPtr h)
+        {
+            Fore(GetAncestor(h, 2));
+            PostMessage(h, 0x00F5, IntPtr.Zero, IntPtr.Zero); // BM_CLICK
+            Sleep(400);
+        }
+
+        /// <summary>Clicks a custom-drawn control by posting mouse messages to it.</summary>
+        static void ClickCtl(IntPtr h)
+        {
+            Fore(GetAncestor(h, 2));
+            RECT c; GetClientRect(h, out c);
+            IntPtr lp = (IntPtr)(((c.B / 2) << 16) | (c.R / 2));
+            PostMessage(h, 0x0201, (IntPtr)1, lp); // WM_LBUTTONDOWN
+            Sleep(60);
+            PostMessage(h, 0x0202, IntPtr.Zero, lp); // WM_LBUTTONUP
+            Sleep(300);
         }
 
         static void ClickWnd(IntPtr h)
@@ -716,6 +781,7 @@ namespace AgPath
             return i;
         }
 
+        const ushort VK_F10 = 0x79;
         const ushort VK_TAB = 0x09, VK_RETURN = 0x0D, VK_SHIFT = 0x10, VK_CONTROL = 0x11, VK_ESCAPE = 0x1B,
                      VK_END = 0x23, VK_HOME = 0x24, VK_DOWN = 0x28, VK_DELETE = 0x2E;
 
@@ -823,6 +889,14 @@ namespace AgPath
         [DllImport("user32.dll", CharSet = CharSet.Unicode)] static extern int GetClassName(IntPtr h, StringBuilder s, int n);
         [DllImport("user32.dll")] static extern bool IsWindowVisible(IntPtr h);
         [DllImport("user32.dll")] static extern IntPtr GetParent(IntPtr h);
+        [DllImport("user32.dll")] static extern IntPtr GetAncestor(IntPtr h, uint flags);
+        [DllImport("user32.dll")] static extern bool IsChild(IntPtr parent, IntPtr h);
+        [DllImport("user32.dll")] static extern IntPtr SetFocus(IntPtr h);
+        [DllImport("user32.dll")] static extern IntPtr GetFocus();
+        [DllImport("user32.dll")] static extern bool AttachThreadInput(uint a, uint b, bool attach);
+        [DllImport("kernel32.dll")] static extern uint GetCurrentThreadId();
+        [DllImport("user32.dll")] static extern bool PostMessage(IntPtr h, uint msg, IntPtr w, IntPtr l);
+        [DllImport("user32.dll")] static extern bool GetClientRect(IntPtr h, out RECT r);
         [DllImport("user32.dll")] static extern bool IsWindowEnabled(IntPtr h);
         [DllImport("user32.dll")] static extern bool IsWindow(IntPtr h);
         [DllImport("user32.dll")] static extern bool IsIconic(IntPtr h);
