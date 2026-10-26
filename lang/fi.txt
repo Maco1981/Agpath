@@ -202,66 +202,7 @@ web.areaShort = ala
 web.coveredShort = katettu
 web.distanceShort = matka
 
-# Agrineuvos-vienti
 common.close = Sulje
-main.agrineuvos = Agri-\nneuvos
-an.title = AgPath – ajojen kirjaus Agrineuvokseen
-an.intro = Valitse ajot, jotka kirjataan Agrineuvokseen toteutettuina tapahtumina. Agrineuvoksen pitää olla auki tilasi tiedoissa. Kerro kerran jokaiselle lohkolle ja tuotteelle, mikä Agrineuvoksen kasvulohko ja tarvike siihen kuuluu – AgPath muistaa ne.
-an.col.date = Päivä
-an.col.field = Lohko
-an.col.product = Tuote / nimi
-an.col.area = ha
-an.col.lohko = Agrineuvos-lohko
-an.col.item = Agrineuvos-tarvike
-an.col.amount = Määrä/ha
-an.col.done = Kirjattu
-an.showDone = Näytä myös jo kirjatut ajot
-an.areaCovered = Ala = katettu ala
-an.areaDriven = Ala = ajettu ala (matka × leveys)
-an.areaCoveredShort = katettu ala
-an.areaDrivenShort = ajettu ala
-an.widthShort = leveys
-an.mapping = Vastaavuus Agrineuvokseen
-an.selectRow = Napauta ajoa listassa, niin voit antaa sille Agrineuvoksen lohkon ja tarvikkeen.
-an.selected = Lohko {0}, tuote {1}:
-an.lohko = Agrineuvos-lohko\n(esim. 1-A)
-an.item = Tarvike täsmälleen kuten Agrineuvoksessa\n(esim. Kaura Luukas 2025)
-an.amount = Määrä/ha\n(ei pakollinen)
-an.mappingHint = Lohkotunnus muistetaan tälle AgOpenGPS-lohkolle, tarvike ja määrä tälle tuotteelle ja lajikkeelle, ala vain tälle ajolle.
-an.export = Kirjaa valitut Agrineuvokseen
-an.noRuns = Ei tallennettuja ajoja (tai kaikki on jo kirjattu).
-an.noneChecked = Valitse ensin kirjattavat ajot rastilla.
-an.missingMapping = Ajo {0} {1}: Agrineuvoksen lohko tai tarvike puuttuu. Napauta ajoa ja täytä ne.
-an.confirm = AgPath kirjaa nyt {0} ajoa Agrineuvokseen käyttämällä sen ikkunoita.\n\nÄlä käytä hiirtä tai näppäimistöä ennen kuin AgPath ilmoittaa valmistuneensa (noin 20 s / ajo). Jos jokin menee pieleen, AgPath pysähtyy ja kertoo syyn.\n\nJatketaanko?
-an.running = Kirjataan Agrineuvokseen… Älä käytä hiirtä tai näppäimistöä.
-an.done = {0} / {1} ajoa kirjattu.
-an.checkInAgrineuvos = Tarkista tulos Agrineuvoksessa (lohkon Toteutettu-välilehti).
-an.err.notRunning = Agrineuvos ei ole käynnissä. Avaa ensin Agrineuvos ja tilasi.
-an.err.noFarm = Avaa ensin tilasi Agrineuvoksessa.
-an.err.dialogOpen = Agrineuvoksessa on ikkuna auki. Sulje se ja yritä uudelleen.
-an.err.noLohko = Agrineuvoksen lohko puuttuu.
-an.err.noItem = Agrineuvoksen tarvike puuttuu.
-an.err.stopped = Ei kirjattu, koska edellinen ajo pysähtyi virheeseen.
-an.err.unexpected = Odottamaton virhe:
-an.err.season = Agrineuvoksen kasvukautta ei saatu luettua.
-an.err.seasonMissing = Agrineuvoksessa ei päästy kasvukaudelle {0}.
-an.err.fieldList = Agrineuvoksen lohkolistaa ei löytynyt.
-an.err.lohkoNotFound = Lohkoa {0} ei löytynyt Agrineuvoksesta tältä kasvukaudelta.
-an.err.wrongLohko = Agrineuvos avasi eri lohkon kuin {0} ({1}). Mitään ei tallennettu.
-an.err.tab = Agrineuvoksen Toteutettu-välilehteä ei saatu auki.
-an.err.menu = Agrineuvoksen Lisää tapahtuma -valikkoa ei saatu auki.
-an.err.addDialog = Lisää tapahtumia lohkolle -ikkuna ei auennut odotetusti.
-an.err.editDialog = Tapahtuman tietoikkuna ei auennut odotetusti.
-an.err.itemNotFound = Tarviketta "{0}" ei löytynyt Agrineuvoksesta. Tarkista kirjoitusasu.
-an.err.check = Agrineuvokseen syötetty arvo ei täsmännyt ({0}: {1}). Mitään ei tallennettu.
-an.err.focus = Joku muu ikkuna aktivoitui kesken kirjauksen, joten AgPath pysähtyi. Tätä ajoa ei tallennettu.
-an.err.covered = Jokin ikkuna peittää Agrineuvoksen. Siirrä se pois ja yritä uudelleen.
-an.err.notSaved = Agrineuvos ei sulkenut tietoikkunaa. Tarkista tilanne Agrineuvoksessa.
-an.err.message = Agrineuvos näytti ilmoituksen. Lue se Agrineuvoksesta.
-an.err.timeout = Kirjaus kesti liian kauan ja keskeytettiin. Tarkista tilanne Agrineuvoksessa.
-an.err.seasonNew = Kasvukautta {0} ei ole vielä perustettu Agrineuvoksessa: Agrineuvos avasi sen asetusikkunan. Mitään ei tallennettu. Perusta kasvukausi ensin Agrineuvoksessa (tai sulje ikkuna).
-an.areaThis = Pinta-ala, ha\n(tyhjä = mitattu ala)
-an.measured = (mitattu {0} ha; jätä ala-kenttä tyhjäksi, niin käytetään sitä)
 
 # Peruslohkojen tuonti AgOpenGPS:ään
 pi.open = Tuo peltojen rajat (Vipu / Ruokavirasto)…

@@ -18,7 +18,7 @@ namespace AgPath
         string currentField = "";
         bool busy;
 
-        Button btnRec, btnProducts, btnSettings, btnFolder, btnCompact, btnMap, btnAn;
+        Button btnRec, btnProducts, btnSettings, btnFolder, btnCompact, btnMap;
         Label lblGps, lblField, lblTime, lblDist, lblArea, lblWidth, lblMsg, lblCompact;
 
         public MainForm(Settings s)
@@ -56,17 +56,7 @@ namespace AgPath
             btnFolder = Ui.Btn(this, Lang.T("main.folder"), 152, 276, 68, 40, Ui.Grey, 8);
             btnSettings = Ui.Btn(this, Lang.T("main.settings"), 224, 276, 68, 40, Ui.Grey, 8);
             btnCompact = Ui.Btn(this, Lang.T("main.compact"), 296, 276, 68, 40, Ui.Grey, 8);
-            btnAn = Ui.Btn(this, Lang.T("main.agrineuvos"), 0, 276, 56, 40, Ui.Grey, 8);
-            bool an = AgrineuvosForm.Available();
-            btnAn.Visible = an;
-            if (an)
-            {
-                // six buttons: make room for the Agrineuvos button
-                Button[] row = new Button[] { btnProducts, btnMap, btnFolder, btnAn, btnSettings, btnCompact };
-                for (int i = 0; i < row.Length; i++) row[i].SetBounds(8 + i * 60, 276, 56, 40);
-            }
-            btnAn.Click += delegate { using (AgrineuvosForm f = new AgrineuvosForm(settings)) f.ShowDialog(this); };
-            foreach (Button b in new Button[] { btnProducts, btnMap, btnFolder, btnSettings, btnCompact, btnAn })
+            foreach (Button b in new Button[] { btnProducts, btnMap, btnFolder, btnSettings, btnCompact })
             {
                 b.Font = Ui.F(8);
                 b.Padding = new Padding(0);
@@ -117,7 +107,6 @@ namespace AgPath
             foreach (Control ctl in new Control[] { lblGps, lblField, lblTime, lblDist, lblArea, lblWidth, lblMsg,
                                                     btnProducts, btnSettings, btnFolder, btnCompact, btnMap })
                 ctl.Visible = !c;
-            btnAn.Visible = !c && AgrineuvosForm.Available();
             ClientSize = c ? new Size(376, 112) : new Size(376, 324);
         }
 

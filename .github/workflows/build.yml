@@ -38,6 +38,12 @@ jobs:
           New-Item -ItemType Directory -Force "$out\tools" | Out-Null
           Copy-Item tools\TestSender.exe, tools\AnInspect.exe "$out\tools" -ErrorAction SilentlyContinue
           Compress-Archive -Path $out -DestinationPath AgPath.zip -Force
+          $k = "AgPathKirjaaja"
+          New-Item -ItemType Directory -Force $k | Out-Null
+          Copy-Item kirjaaja\AgPathKirjaaja.exe, LICENSE, icon.ico $k
+          Copy-Item -Recurse kirjaaja\lang $k
+          if (Test-Path kirjaaja\README.md) { Copy-Item kirjaaja\README.md $k }
+          Compress-Archive -Path $k -DestinationPath AgPathKirjaaja.zip -Force
 
       - uses: actions/upload-artifact@v4
         if: steps.build.outcome == 'success'
@@ -62,6 +68,7 @@ jobs:
           $tmp = Join-Path $env:RUNNER_TEMP "devb"
           New-Item -ItemType Directory -Force $tmp | Out-Null
           if (Test-Path AgPath.zip) { Copy-Item AgPath.zip $tmp }
+          if (Test-Path AgPathKirjaaja.zip) { Copy-Item AgPathKirjaaja.zip $tmp }
           Copy-Item build_log.txt $tmp -ErrorAction SilentlyContinue
           git checkout --orphan dev-builds
           git rm -rf -q .

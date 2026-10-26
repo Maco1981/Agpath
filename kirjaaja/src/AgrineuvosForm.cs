@@ -141,7 +141,8 @@ namespace AgPath
     /// <summary>Choose saved runs and enter them into Agrineuvos as completed operations.</summary>
     class AgrineuvosForm : Form
     {
-        readonly Settings s;
+        readonly KSettings s;
+        TextBox tbFolder;
         readonly AnMapping map = AnMapping.Load();
         List<AnRun> runs = new List<AnRun>();
         ListView lv;
@@ -170,26 +171,37 @@ namespace AgPath
 
         public static bool Available() { return ExePath() != null || Process.GetProcessesByName("AgrineuvosClient").Length > 0; }
 
-        public AgrineuvosForm(Settings settings)
+        public AgrineuvosForm(KSettings settings)
         {
             s = settings;
-            Text = Lang.T("an.title");
+            Text = Lang.T("an.title") + "  " + Program.Version;
             FormBorderStyle = FormBorderStyle.Sizable;
             StartPosition = FormStartPosition.CenterScreen;
             MinimizeBox = true; MaximizeBox = true;
-            TopMost = true;
             BackColor = Color.White;
             Font = Ui.F(10);
-            ClientSize = new Size(1000, 660);
+            ClientSize = new Size(1000, 700);
             MinimumSize = new Size(800, 520);
             try { Icon = Icon.ExtractAssociatedIcon(Application.ExecutablePath); } catch { }
 
             Label intro = Ui.Lbl(this, Lang.T("an.intro"), 12, 8, 976, 44, 9);
             intro.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
 
+            // folder with the runs saved by AgPath (e.g. a shared OneDrive folder)
+            Ui.Lbl(this, Lang.T("an.folder") + ":", 12, 60, 150, 24, 10);
+            tbFolder = new TextBox(); tbFolder.ReadOnly = true; tbFolder.SetBounds(162, 57, 560, 28);
+            tbFolder.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            Controls.Add(tbFolder);
+            Button bFolder = Ui.Btn(this, Lang.T("an.chooseFolder"), 732, 55, 130, 32, Ui.Grey, 9);
+            bFolder.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            bFolder.Click += delegate { ChooseFolder(); };
+            Button bReload = Ui.Btn(this, Lang.T("an.reload"), 868, 55, 120, 32, Ui.Grey, 9);
+            bReload.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            bReload.Click += delegate { Reload(); };
+
             lv = new ListView();
             lv.View = View.Details; lv.CheckBoxes = true; lv.FullRowSelect = true; lv.HideSelection = false;
-            lv.SetBounds(12, 56, 976, 330);
+            lv.SetBounds(12, 96, 976, 330);
             lv.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             lv.Columns.Add(Lang.T("an.col.date"), 120);
             lv.Columns.Add(Lang.T("an.col.field"), 130);
@@ -202,7 +214,7 @@ namespace AgPath
             Controls.Add(lv);
             lv.SelectedIndexChanged += delegate { ShowSelected(); };
 
-            int y = 394;
+            int y = 434;
             chkShowDone = new CheckBox();
             chkShowDone.Text = Lang.T("an.showDone");
             chkShowDone.SetBounds(12, y, 400, 24);
@@ -262,9 +274,32 @@ namespace AgPath
             FormClosing += delegate(object o, FormClosingEventArgs e) { if (worker != null && !worker.HasExited) e.Cancel = true; };
             FormClosed += delegate { poll.Stop(); };
 
-            runs = AnRun.LoadAll(s.SaveDir);
+            Shown += delegate { if (s.DataDir == "" || !Directory.Exists(s.DataDir)) ChooseFolder(); };
+            Reload();
+            ShowSelected();
+        }
+
+        void ChooseFolder()
+        {
+            using (FolderBrowserDialog d = new FolderBrowserDialog())
+            {
+                d.Description = Lang.T("an.folderHelp");
+                if (Directory.Exists(s.DataDir)) d.SelectedPath = s.DataDir;
+                if (d.ShowDialog(this) != DialogResult.OK) return;
+                s.DataDir = d.SelectedPath;
+                s.Save();
+            }
+            Reload();
+        }
+
+        void Reload()
+        {
+            tbFolder.Text = s.DataDir;
+            runs = Directory.Exists(s.DataDir) ? AnRun.LoadAll(s.DataDir) : new List<AnRun>();
             Fill();
             ShowSelected();
+            lblStatus.ForeColor = Ui.Dark;
+            lblStatus.Text = Directory.Exists(s.DataDir) ? Lang.T("an.loaded", runs.Count) : Lang.T("an.noFolder");
         }
 
         double MeasuredArea(AnRun r) { return map.UseCovered && r.CoveredHa > 0 ? r.CoveredHa : r.AreaHa; }

@@ -203,66 +203,7 @@ web.areaShort = area
 web.coveredShort = covered
 web.distanceShort = distance
 
-# Agrineuvos (Finnish farm management software) export
 common.close = Close
-main.agrineuvos = Agri-\nneuvos
-an.title = AgPath – enter runs into Agrineuvos
-an.intro = Choose the runs to enter into Agrineuvos as completed operations (Toteutettu). Agrineuvos must be open with your farm. For each field and product, tell once which Agrineuvos field (kasvulohko) and supply (tarvike) it belongs to; AgPath remembers them.
-an.col.date = Date
-an.col.field = Field
-an.col.product = Product / name
-an.col.area = ha
-an.col.lohko = Agrineuvos field
-an.col.item = Agrineuvos supply
-an.col.amount = Amount/ha
-an.col.done = Entered
-an.showDone = Show runs already entered
-an.areaCovered = Area = covered area
-an.areaDriven = Area = driven area (distance × width)
-an.areaCoveredShort = covered area
-an.areaDrivenShort = driven area
-an.widthShort = width
-an.mapping = Matching with Agrineuvos
-an.selectRow = Click a run in the list to set its Agrineuvos field and supply.
-an.selected = Field {0}, product {1}:
-an.lohko = Agrineuvos field\n(e.g. 1-A)
-an.item = Supply exactly as in Agrineuvos\n(e.g. Kaura Luukas 2025)
-an.amount = Amount/ha\n(optional)
-an.mappingHint = The field ID is remembered for this AgOpenGPS field, the supply and amount for this product and variety, the area for this run only.
-an.export = Enter ticked runs into Agrineuvos
-an.noRuns = No saved runs (or all are already entered).
-an.noneChecked = Tick the runs to enter first.
-an.missingMapping = Run {0} {1}: the Agrineuvos field or supply is missing. Click the run and fill them in.
-an.confirm = AgPath will now enter {0} run(s) into Agrineuvos by operating its windows.\n\nDon't use the mouse or keyboard until AgPath says it is done (about 20 s per run). If something goes wrong, AgPath stops and tells you.\n\nContinue?
-an.running = Entering runs into Agrineuvos… Don't use the mouse or keyboard.
-an.done = {0} of {1} run(s) entered.
-an.checkInAgrineuvos = Check the result in Agrineuvos (Toteutettu tab of the field).
-an.err.notRunning = Agrineuvos is not running. Open Agrineuvos and your farm first.
-an.err.noFarm = Open your farm in Agrineuvos first.
-an.err.dialogOpen = A window is open in Agrineuvos. Close it and try again.
-an.err.noLohko = The Agrineuvos field is missing.
-an.err.noItem = The Agrineuvos supply is missing.
-an.err.stopped = Not entered, because an earlier run stopped with an error.
-an.err.unexpected = Unexpected error:
-an.err.season = Could not read the growing season in Agrineuvos.
-an.err.seasonMissing = Could not move to growing season {0} in Agrineuvos.
-an.err.fieldList = Could not find the field list in Agrineuvos.
-an.err.lohkoNotFound = Field {0} was not found in Agrineuvos for this season.
-an.err.wrongLohko = Agrineuvos opened a different field than {0} ({1}). Nothing was saved.
-an.err.tab = Could not open the Toteutettu tab in Agrineuvos.
-an.err.menu = Could not open the "Lisää tapahtuma" menu in Agrineuvos.
-an.err.addDialog = The "Lisää tapahtumia lohkolle" window did not open as expected.
-an.err.editDialog = The operation details window did not open as expected.
-an.err.itemNotFound = Supply "{0}" was not found in Agrineuvos. Check the spelling.
-an.err.check = The value entered in Agrineuvos did not match ({0}: {1}). Nothing was saved.
-an.err.focus = Another window was activated during the entry, so AgPath stopped. Nothing was saved for this run.
-an.err.covered = Another window covers Agrineuvos. Move it away and try again.
-an.err.notSaved = Agrineuvos did not close the details window. Check it in Agrineuvos.
-an.err.message = Agrineuvos showed a message. Read it in Agrineuvos.
-an.err.timeout = Entering took too long and was stopped. Check the result in Agrineuvos.
-an.err.seasonNew = Growing season {0} has not been set up in Agrineuvos yet: Agrineuvos opened its settings window. Nothing was saved. Set up the season in Agrineuvos first (or close the window).
-an.areaThis = Area, ha\n(empty = measured)
-an.measured = (measured {0} ha; leave the area box empty to use it)
 
 # Basic parcels (Finland) to AgOpenGPS fields
 pi.open = Import field boundaries (Vipu / Finnish parcel register)…

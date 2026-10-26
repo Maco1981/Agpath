@@ -11,7 +11,7 @@ namespace AgPath
     static class Program
     {
         public static string AppDir;
-        public const string Version = "1.2.1-agrineuvos";
+        public const string Version = "1.2.1-test";
 
         [STAThread]
         static void Main(string[] args)
@@ -71,13 +71,6 @@ namespace AgPath
                 }
                 catch (Exception ex) { sb.AppendLine("ERROR " + ex); }
                 File.WriteAllText(Path.Combine(args[2], "parcel_test.txt"), sb.ToString());
-                return;
-            }
-            if (args.Length >= 2 && args[0] == "--agrineuvos")
-            {
-                // separate worker process that enters runs into Agrineuvos (started by AgrineuvosForm)
-                Lang.Load(Settings.Load().Language);
-                AgrineuvosAuto.RunJobFile(args[1]);
                 return;
             }
             bool createdNew;
