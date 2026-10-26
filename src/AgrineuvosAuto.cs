@@ -213,16 +213,20 @@ namespace AgPath
             if (!IsWindowEnabled(mainWnd)) throw new AnException(T("an.err.dialogOpen"));
 
             GoToSeason(j.Date.Year);
+            L("Season ok, selecting field");
             SelectField(j.Lohko.Trim());
+            L("Field ok");
 
             string lastCaption = "", rejected = null;
             for (int candidate = 0; candidate < 6; candidate++)
             {
                 OpenAddDialog();
+                L("Add menu clicked");
                 IntPtr sel = WaitTop("TACTapahtumaSelectDialog", 10000);
                 if (sel == IntPtr.Zero) throw new AnException(T("an.err.addDialog"));
                 Sleep(500);
                 bool found = PickItem(sel, j.Item.Trim(), candidate);
+                L("Pick " + candidate + " -> " + found);
                 if (!found)
                 {
                     CancelDialog(sel);
@@ -282,20 +286,21 @@ namespace AgPath
         // ------------------------------------------------------------ season (kasvukausi)
         static int CurrentSeason()
         {
-            AutomationElement root = AutomationElement.FromHandle(mainWnd);
-            AutomationElement bar = root.FindFirst(TreeScope.Children,
-                new PropertyCondition(AutomationElement.ControlTypeProperty, ControlType.MenuBar));
-            if (bar == null) bar = root;
-            AutomationElementCollection items = bar.FindAll(TreeScope.Descendants,
-                new PropertyCondition(AutomationElement.ControlTypeProperty, ControlType.MenuItem));
-            foreach (AutomationElement e in items)
+            // the main menu shows "Edellinen kasvukausi (2024)" and "Seuraava kasvukausi (2026)"
+            IntPtr barWnd = IntPtr.Zero;
+            foreach (IntPtr h in Descendants(mainWnd))
+                if (Cls(h) == "TActionMainMenuBar" && IsWindowVisible(h)) { barWnd = h; break; }
+            AutomationElement bar = barWnd != IntPtr.Zero ? AutomationElement.FromHandle(barWnd) : AutomationElement.FromHandle(mainWnd);
+            AutomationElement season = bar.FindFirst(TreeScope.Children, new PropertyCondition(AutomationElement.NameProperty, "Kasvukausi"));
+            if (season == null) season = bar.FindFirst(TreeScope.Descendants, new PropertyCondition(AutomationElement.NameProperty, "Kasvukausi"));
+            if (season == null) return 0;
+            foreach (AutomationElement e in season.FindAll(TreeScope.Children, Condition.TrueCondition))
             {
                 string n = "";
                 try { n = e.Current.Name; } catch { }
                 Match m = Regex.Match(n, @"\((\d{4})\)");
                 if (!m.Success) continue;
                 int y = int.Parse(m.Groups[1].Value);
-                // "Edellinen kasvukausi (2024)" / "Seuraava kasvukausi (2026)"
                 if (n.IndexOf("Edellinen", StringComparison.OrdinalIgnoreCase) >= 0) return y + 1;
                 if (n.IndexOf("Seuraava", StringComparison.OrdinalIgnoreCase) >= 0) return y - 1;
             }
@@ -374,17 +379,20 @@ namespace AgPath
 
         static int[] FieldCount()
         {
-            // status bar under the field list, e.g. "1/13    7,7 %"
-            AutomationElement root = AutomationElement.FromHandle(mainWnd);
-            AutomationElementCollection bars = root.FindAll(TreeScope.Descendants,
-                new PropertyCondition(AutomationElement.ControlTypeProperty, ControlType.StatusBar));
-            foreach (AutomationElement b in bars)
+            // status bar under the field list, e.g. "3,36/101,50 ha" | "1/13    3,3 %"
+            IntPtr tree = FieldTree();
+            if (tree == IntPtr.Zero) return null;
+            RECT tr = Rect(tree);
+            foreach (IntPtr h in Descendants(mainWnd))
             {
-                foreach (AutomationElement c in b.FindAll(TreeScope.Children, Condition.TrueCondition))
+                if (Cls(h) != "TStatusBar" || !IsWindowVisible(h)) continue;
+                RECT r = Rect(h);
+                if (r.L > tr.R || r.R < tr.L || r.T < tr.T) continue;
+                foreach (AutomationElement c in AutomationElement.FromHandle(h).FindAll(TreeScope.Children, Condition.TrueCondition))
                 {
                     string v = "";
                     try { v = c.Current.Name; } catch { }
-                    Match m = Regex.Match(v, @"(\d+)\s*/\s*(\d+)\s");
+                    Match m = Regex.Match(v, @"(\d+)\s*/\s*(\d+)(\s|$)");
                     if (m.Success && v.IndexOf("ha") < 0) return new int[] { int.Parse(m.Groups[1].Value), int.Parse(m.Groups[2].Value) };
                 }
             }
@@ -407,17 +415,21 @@ namespace AgPath
         static void OpenAddDialog()
         {
             FocusMain();
-            AutomationElement main = AutomationElement.FromHandle(mainWnd);
-            AutomationElement tab = main.FindFirst(TreeScope.Descendants, new AndCondition(
-                new PropertyCondition(AutomationElement.ControlTypeProperty, ControlType.TabItem),
-                new PropertyCondition(AutomationElement.NameProperty, "Toteutettu")));
-            if (tab == null) throw new AnException(T("an.err.tab"));
-            object sp;
-            bool selected = tab.TryGetCurrentPattern(SelectionItemPattern.Pattern, out sp) && ((SelectionItemPattern)sp).Current.IsSelected;
-            if (!selected)
+            IntPtr sheet = IntPtr.Zero;
+            foreach (IntPtr h in Descendants(mainWnd))
+                if (Cls(h) == "TTabSheet" && GetText(h) == "Toteutettu") { sheet = h; break; }
+            if (sheet == IntPtr.Zero) throw new AnException(T("an.err.tab"));
+            if (!IsWindowVisible(sheet))
             {
+                IntPtr pc = GetParent(sheet);
+                AutomationElement tab = AutomationElement.FromHandle(pc).FindFirst(TreeScope.Children, new AndCondition(
+                    new PropertyCondition(AutomationElement.ControlTypeProperty, ControlType.TabItem),
+                    new PropertyCondition(AutomationElement.NameProperty, "Toteutettu")));
+                if (tab == null) throw new AnException(T("an.err.tab"));
                 ClickElement(tab);
-                Sleep(1200);
+                for (int i = 0; i < 20 && !IsWindowVisible(sheet); i++) Sleep(100);
+                Sleep(500);
+                if (!IsWindowVisible(sheet)) throw new AnException(T("an.err.tab"));
             }
             // the operations list of the Toteutettu tab
             IntPtr grid = IntPtr.Zero;
@@ -442,17 +454,21 @@ namespace AgPath
 
         static AutomationElement FindMenuItem(string name)
         {
-            AutomationElementCollection menus = AutomationElement.RootElement.FindAll(TreeScope.Children, new AndCondition(
-                new PropertyCondition(AutomationElement.ProcessIdProperty, (int)pid),
-                new PropertyCondition(AutomationElement.ControlTypeProperty, ControlType.Menu)));
-            foreach (AutomationElement m in menus)
+            // popup menus are top-level windows of class #32768
+            AutomationElement found = null;
+            EnumWindows(delegate(IntPtr h, IntPtr l)
             {
-                AutomationElement it = m.FindFirst(TreeScope.Descendants, new AndCondition(
-                    new PropertyCondition(AutomationElement.ControlTypeProperty, ControlType.MenuItem),
-                    new PropertyCondition(AutomationElement.NameProperty, name)));
-                if (it != null) return it;
-            }
-            return null;
+                if (Cls(h) != "#32768" || !IsWindowVisible(h)) return true;
+                try
+                {
+                    found = AutomationElement.FromHandle(h).FindFirst(TreeScope.Descendants, new AndCondition(
+                        new PropertyCondition(AutomationElement.ControlTypeProperty, ControlType.MenuItem),
+                        new PropertyCondition(AutomationElement.NameProperty, name)));
+                }
+                catch { }
+                return found == null;
+            }, IntPtr.Zero);
+            return found;
         }
 
         /// <summary>Searches for the item and moves search result number <paramref name="index"/> to the
@@ -799,6 +815,7 @@ namespace AgPath
         [DllImport("user32.dll")] static extern uint GetWindowThreadProcessId(IntPtr h, out uint pid);
         [DllImport("user32.dll", CharSet = CharSet.Unicode)] static extern int GetClassName(IntPtr h, StringBuilder s, int n);
         [DllImport("user32.dll")] static extern bool IsWindowVisible(IntPtr h);
+        [DllImport("user32.dll")] static extern IntPtr GetParent(IntPtr h);
         [DllImport("user32.dll")] static extern bool IsWindowEnabled(IntPtr h);
         [DllImport("user32.dll")] static extern bool IsWindow(IntPtr h);
         [DllImport("user32.dll")] static extern bool IsIconic(IntPtr h);
