@@ -6,7 +6,7 @@ set CSC=%WINDIR%\Microsoft.NET\Framework64\v4.0.30319\csc.exe
 if not exist "%CSC%" set CSC=%WINDIR%\Microsoft.NET\Framework\v4.0.30319\csc.exe
 set WPF=%WINDIR%\Microsoft.NET\Framework64\v4.0.30319\WPF
 if not exist "%WPF%" set WPF=%WINDIR%\Microsoft.NET\Framework\v4.0.30319\WPF
-"%CSC%" /nologo /codepage:65001 /target:winexe /optimize+ /out:AgPath.exe /win32icon:icon.ico /r:System.dll /r:System.Core.dll /r:System.Drawing.dll /r:System.Windows.Forms.dll /r:System.Xml.dll /r:System.Web.Extensions.dll /r:"%WPF%\UIAutomationClient.dll" /r:"%WPF%\UIAutomationTypes.dll" /r:"%WPF%\WindowsBase.dll" src\*.cs > build_log.txt 2>&1
+"%CSC%" /nologo /codepage:65001 /target:winexe /optimize+ /out:AgPath.exe /win32icon:icon.ico /r:System.dll /r:System.Core.dll /r:System.Drawing.dll /r:System.Windows.Forms.dll /r:System.Xml.dll /r:System.Web.Extensions.dll /r:System.IO.Compression.dll /r:System.IO.Compression.FileSystem.dll /r:"%WPF%\UIAutomationClient.dll" /r:"%WPF%\UIAutomationTypes.dll" /r:"%WPF%\WindowsBase.dll" src\*.cs > build_log.txt 2>&1
 if errorlevel 1 (
   echo BUILD FAILED >> build_log.txt
   type build_log.txt

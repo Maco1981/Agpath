@@ -31,6 +31,8 @@ namespace AgPath
         int year;
         bool filling;
         double[] searchCenter;
+        RadioButton rbPerus, rbKasvu;
+        string vipuFile;
 
         public ParcelForm(Settings settings)
         {
@@ -68,9 +70,19 @@ namespace AgPath
             btnSearch.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             btnSearch.Click += delegate { Search(); };
 
+            Button btnVipu = Ui.Btn(this, Lang.T("pi.openVipu"), 12, 94, 330, 34, Ui.Green, 10);
+            btnVipu.Click += delegate { OpenVipu(); };
+            rbPerus = new RadioButton(); rbPerus.Text = Lang.T("pi.perus"); rbPerus.SetBounds(360, 98, 200, 26); rbPerus.Checked = true;
+            rbKasvu = new RadioButton(); rbKasvu.Text = Lang.T("pi.kasvu"); rbKasvu.SetBounds(570, 98, 200, 26);
+            Controls.Add(rbPerus); Controls.Add(rbKasvu);
+            rbKasvu.CheckedChanged += delegate { if (vipuFile != null) LoadVipu(vipuFile); };
+            Button btnAll = Ui.Btn(this, Lang.T("pi.selectNew"), 780, 94, 208, 34, Ui.Grey, 9);
+            btnAll.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            btnAll.Click += delegate { SelectAllNew(); };
+
             lv = new ListView();
             lv.View = View.Details; lv.CheckBoxes = true; lv.FullRowSelect = true; lv.HideSelection = false;
-            lv.SetBounds(12, 96, 976, 330);
+            lv.SetBounds(12, 134, 976, 292);
             lv.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             lv.Columns.Add(Lang.T("pi.col.id"), 130);
             lv.Columns.Add(Lang.T("pi.col.area"), 70, HorizontalAlignment.Right);
@@ -84,7 +96,7 @@ namespace AgPath
             {
                 if (filling) return;
                 Parcel p = (Parcel)e.Item.Tag;
-                if (e.Item.Checked && NameOf(p) == "") { names[p.Tunnus] = DefaultName(p); e.Item.SubItems[5].Text = names[p.Tunnus]; }
+                if (e.Item.Checked && NameOf(p) == "") { names[p.Key] = DefaultName(p); e.Item.SubItems[5].Text = names[p.Key]; }
             };
 
             int y = 434;
@@ -119,8 +131,59 @@ namespace AgPath
             ShowSelected();
         }
 
-        string NameOf(Parcel p) { string n; return names.TryGetValue(p.Tunnus, out n) ? n : ""; }
-        static string DefaultName(Parcel p) { return p.TunnusPretty; }
+        string NameOf(Parcel p) { string n; return names.TryGetValue(p.Key, out n) ? n : ""; }
+
+        /// <summary>The Vipu name if there is one (made unique), otherwise the parcel ID.</summary>
+        string DefaultName(Parcel p)
+        {
+            string n = p.Name.Trim();
+            foreach (char c in Path.GetInvalidFileNameChars()) n = n.Replace(c, '-');
+            n = n.Trim().TrimEnd('.');
+            if (n == "") return p.TunnusPretty + (p.KlTunnus == "" ? "" : " " + p.KlTunnus);
+            int same = 0;
+            foreach (Parcel q in parcels) if (q.Name.Trim().Equals(p.Name.Trim(), StringComparison.CurrentCultureIgnoreCase)) same++;
+            return same > 1 ? n + " " + p.TunnusPretty : n;
+        }
+
+        void OpenVipu()
+        {
+            using (OpenFileDialog d = new OpenFileDialog())
+            {
+                d.Title = Lang.T("pi.openVipu");
+                d.Filter = Lang.T("pi.vipuFilter") + "|*.zip;*.kml|*.*|*.*";
+                string dl = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads");
+                if (Directory.Exists(dl)) d.InitialDirectory = dl;
+                if (d.ShowDialog(this) != DialogResult.OK) return;
+                vipuFile = d.FileName;
+            }
+            LoadVipu(vipuFile);
+        }
+
+        void LoadVipu(string file)
+        {
+            try
+            {
+                List<Parcel> found = ParcelImport.ReadVipu(file, rbKasvu.Checked);
+                searchCenter = Center();
+                names.Clear();
+                year = found.Count > 0 ? found[0].Year : 0;
+                SearchDone(found, year, null);
+                vipuFile = file;
+                parcels.Sort(delegate(Parcel a, Parcel b) { return string.Compare(a.Name + a.KlTunnus, b.Name + b.KlTunnus, StringComparison.CurrentCultureIgnoreCase); });
+                Fill();
+                lblSource.Text = Lang.T("pi.sourceVipu", Path.GetFileName(file));
+            }
+            catch (Exception ex) { Status(Lang.T("pi.err.search", ex.Message), true); Log.Write("Vipu file: " + ex); }
+        }
+
+        void SelectAllNew()
+        {
+            foreach (ListViewItem it in lv.Items)
+            {
+                Parcel p = (Parcel)it.Tag;
+                if (p.Overlaps == "" && !it.Checked) it.Checked = true;
+            }
+        }
 
         double[] Center()
         {
@@ -172,6 +235,7 @@ namespace AgPath
             btnSearch.Enabled = true;
             if (err != null) { Status(Lang.T("pi.err.search", err), true); return; }
             year = yr;
+            names.Clear();
             foreach (Parcel p in found)
             {
                 p.Overlaps = fields.FieldAt(p.CLat, p.CLon);
@@ -188,6 +252,7 @@ namespace AgPath
             parcels = found;
             Fill();
             lblSource.Text = Lang.T("pi.source", ParcelImport.Attribution, year);
+            vipuFile = null;
             Status(Lang.T("pi.found", parcels.Count, year), false);
             btnMap.Enabled = btnCreate.Enabled = parcels.Count > 0;
         }
@@ -206,12 +271,12 @@ namespace AgPath
             lv.Items.Clear();
             foreach (Parcel p in parcels)
             {
-                ListViewItem it = new ListViewItem(p.TunnusPretty);
+                ListViewItem it = new ListViewItem(p.TunnusPretty + (p.KlTunnus == "" ? "" : " " + p.KlTunnus));
                 it.SubItems.Add(p.AreaHa.ToString("0.00", Lang.Culture));
                 it.SubItems.Add(p.Crops);
                 it.SubItems.Add(searchCenter == null ? "" : (p.DistanceM / 1000).ToString("0.0", Lang.Culture) + " km");
                 it.SubItems.Add(p.Overlaps);
-                it.SubItems.Add(NameOf(p));
+                it.SubItems.Add(NameOf(p) != "" ? NameOf(p) : DefaultName(p));
                 it.Tag = p;
                 if (p.Overlaps != "") it.ForeColor = Color.Gray;
                 lv.Items.Add(it);
@@ -227,7 +292,7 @@ namespace AgPath
             Parcel p = Selected();
             filling = true;
             tbName.Enabled = p != null;
-            tbName.Text = p == null ? "" : NameOf(p);
+            tbName.Text = p == null ? "" : (NameOf(p) != "" ? NameOf(p) : DefaultName(p));
             tbName.BackColor = SystemColors.Window;
             filling = false;
         }
@@ -238,7 +303,7 @@ namespace AgPath
             ListViewItem it = lv.SelectedItems[0];
             Parcel p = (Parcel)it.Tag;
             string n = tbName.Text.Trim();
-            names[p.Tunnus] = n;
+            names[p.Key] = n;
             it.SubItems[5].Text = n;
             tbName.BackColor = n == "" || ParcelImport.ValidName(n) ? SystemColors.Window : Color.MistyRose;
             if (n != "" && !it.Checked) { filling = true; it.Checked = true; filling = false; }
@@ -275,7 +340,7 @@ namespace AgPath
                 {
                     if (!first) sb.Append(",\n");
                     first = false;
-                    sb.Append("{pretty:").Append(Exporter.J(p.TunnusPretty)).Append(",name:").Append(Exporter.J(NameOf(p)))
+                    sb.Append("{pretty:").Append(Exporter.J(p.TunnusPretty)).Append(",name:").Append(Exporter.J(NameOf(p) != "" ? NameOf(p) : DefaultName(p)))
                       .Append(",area:").Append(Exporter.J(p.AreaHa.ToString("0.00", Lang.Culture))).Append(",crops:").Append(Exporter.J(p.Crops))
                       .Append(",overlaps:").Append(Exporter.J(p.Overlaps)).Append(",selected:").Append(checkedIds.Contains(p.Tunnus) ? "true" : "false")
                       .Append(",ring:[");

@@ -23,6 +23,12 @@ namespace AgPath
         public double CLat, CLon;       // centre
         public double DistanceM;
         public string Overlaps = "";    // existing AgOpenGPS field that covers its centre
+        public string Name = "";        // name given in Vipu (empty in the open register)
+        public string KlTunnus = "";    // kasvulohko letter (A, B...) when a kasvulohko is imported
+        public string Source = "";      // e.g. "Vipu 2026" or "Ruokavirasto 2025"
+        public List<List<double[]>> Holes = new List<List<double[]>>(); // inner rings {lat, lon}
+
+        public string Key { get { return Tunnus + KlTunnus; } }
 
         public string TunnusPretty
         {
@@ -92,6 +98,7 @@ namespace AgPath
                 pc.Tunnus = Convert.ToString(p["PERUSLOHKOTUNNUS"], CultureInfo.InvariantCulture);
                 pc.AreaHa = p["PINTA_ALA"] == null ? 0 : Convert.ToDouble(p["PINTA_ALA"], CultureInfo.InvariantCulture);
                 pc.Year = year;
+                pc.Source = "Ruokavirasto " + year;
                 ReadRing(f, pc);
                 if (pc.Ring.Count < 3 || byId.ContainsKey(pc.Tunnus)) continue;
                 byId[pc.Tunnus] = pc;
@@ -179,34 +186,9 @@ namespace AgPath
             if (Directory.Exists(dir)) throw new Exception(Lang.T("pi.err.exists", name));
             double lat0 = pc.CLat, lon0 = pc.CLon;
 
-            // local plane exactly as AgOpenGPS 6 (CNMEA): metres north/east of the start fix
-            double mLat = 111132.92 - 559.82 * Math.Cos(2.0 * lat0 * D) + 1.175 * Math.Cos(4.0 * lat0 * D) - 0.0023 * Math.Cos(6.0 * lat0 * D);
-            List<double[]> pts = new List<double[]>();
-            foreach (double[] p in pc.Ring)
-            {
-                double mLon = 111412.84 * Math.Cos(p[0] * D) - 93.5 * Math.Cos(3.0 * p[0] * D) + 0.118 * Math.Cos(5.0 * p[0] * D);
-                pts.Add(new double[] { (p[1] - lon0) * mLon, (p[0] - lat0) * mLat });
-            }
-            if (pts.Count > 1 && Math.Abs(pts[0][0] - pts[pts.Count - 1][0]) < 0.001 && Math.Abs(pts[0][1] - pts[pts.Count - 1][1]) < 0.001)
-                pts.RemoveAt(pts.Count - 1);
-            // counter-clockwise like the boundaries AgOpenGPS records
-            double area = 0;
-            for (int i = 0; i < pts.Count; i++)
-            {
-                double[] a = pts[i], b = pts[(i + 1) % pts.Count];
-                area += a[0] * b[1] - b[0] * a[1];
-            }
-            if (area < 0) pts.Reverse();
-            // about one point per metre, like a driven boundary
-            List<double[]> dense = new List<double[]>();
-            for (int i = 0; i < pts.Count; i++)
-            {
-                double[] a = pts[i], b = pts[(i + 1) % pts.Count];
-                double len = Math.Sqrt((b[0] - a[0]) * (b[0] - a[0]) + (b[1] - a[1]) * (b[1] - a[1]));
-                int n = Math.Max(1, (int)Math.Floor(len / 1.0));
-                for (int j = 0; j < n; j++) dense.Add(new double[] { a[0] + (b[0] - a[0]) * j / n, a[1] + (b[1] - a[1]) * j / n });
-            }
-            dense.Add(dense[0]);
+            StringBuilder b2 = new StringBuilder("$Boundary\r\n");
+            AppendRing(b2, pc.Ring, lat0, lon0, true);
+            foreach (List<double[]> hole in pc.Holes) if (hole.Count >= 3) AppendRing(b2, hole, lat0, lon0, false);
 
             Directory.CreateDirectory(dir);
             string stamp = DateTime.Now.ToString("yyyy-MMMM-dd hh:mm:ss tt", Inv);
@@ -214,18 +196,6 @@ namespace AgPath
             string header = stamp + "\r\n$FieldDir\r\n{0}\r\n$Offsets\r\n0,0\r\nConvergence\r\n0\r\nStartFix\r\n" + fix + "\r\n";
             W(dir, "Field.txt", string.Format(header, "FieldNew"));
             W(dir, "Elevation.txt", string.Format(header, "Elevation") + "Latitude,Longitude,Elevation,Quality,Easting,Northing,Heading,Roll\r\n");
-
-            StringBuilder b2 = new StringBuilder("$Boundary\r\nFalse\r\n");
-            b2.Append(dense.Count.ToString(Inv)).Append("\r\n");
-            for (int i = 0; i < dense.Count; i++)
-            {
-                double[] p = dense[i], q = dense[(i + 1) % dense.Count];
-                if (i == dense.Count - 1) q = dense[1];
-                double h = Math.Atan2(q[0] - p[0], q[1] - p[1]);
-                if (h < 0) h += 2 * Math.PI;
-                b2.Append(p[0].ToString("0.000", Inv)).Append(',').Append(p[1].ToString("0.000", Inv)).Append(',')
-                  .Append(h.ToString("0.#####", Inv)).Append("\r\n");
-            }
             W(dir, "Boundary.txt", b2.ToString());
             W(dir, "TrackLines.txt", "$TrackLines\r\n");
             W(dir, "Flags.txt", "$Flags\r\n0\r\n");
@@ -237,7 +207,7 @@ namespace AgPath
             StringBuilder k = new StringBuilder();
             k.Append("<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n<kml xmlns=\"http://www.opengis.net/kml/2.2\">\r\n<Document>\r\n");
             k.Append("<Folder>\r\n<name>Field Stats</name>\r\n<description>Field: ").Append(Esc(name)).Append("\r\nPeruslohko: ")
-             .Append(pc.TunnusPretty).Append("\r\nSource: ").Append(Attribution).Append(" ").Append(pc.Year).Append("\r\n</description>\r\n</Folder>\r\n");
+             .Append(pc.TunnusPretty).Append(pc.KlTunnus == "" ? "" : " " + pc.KlTunnus).Append("\r\nSource: ").Append(pc.Source != "" ? pc.Source : Attribution + " " + pc.Year).Append("\r\n</description>\r\n</Folder>\r\n");
             k.Append("<Folder>\r\n<name>Boundaries</name>\r\n<Placemark>\r\n<name>").Append(Esc(name)).Append("</name>\r\n");
             k.Append("<Polygon>\r\n<tessellate>1</tessellate>\r\n<outerBoundaryIs>\r\n<LinearRing>\r\n<coordinates>");
             List<double[]> ring = new List<double[]>(pc.Ring);
@@ -249,7 +219,182 @@ namespace AgPath
             Log.Write("Created AgOpenGPS field " + dir + " from parcel " + pc.Tunnus + " (" + pc.Year + ")");
         }
 
+        /// <summary>Writes one boundary ring in AgOpenGPS's local plane (outer counter-clockwise, inner clockwise,
+        /// about one point per metre like a driven boundary).</summary>
+        static void AppendRing(StringBuilder b2, List<double[]> ring, double lat0, double lon0, bool outer)
+        {
+            // local plane exactly as AgOpenGPS 6 (CNMEA): metres north/east of the start fix
+            double mLat = 111132.92 - 559.82 * Math.Cos(2.0 * lat0 * D) + 1.175 * Math.Cos(4.0 * lat0 * D) - 0.0023 * Math.Cos(6.0 * lat0 * D);
+            List<double[]> pts = new List<double[]>();
+            foreach (double[] p in ring)
+            {
+                double mLon = 111412.84 * Math.Cos(p[0] * D) - 93.5 * Math.Cos(3.0 * p[0] * D) + 0.118 * Math.Cos(5.0 * p[0] * D);
+                pts.Add(new double[] { (p[1] - lon0) * mLon, (p[0] - lat0) * mLat });
+            }
+            if (pts.Count > 1 && Math.Abs(pts[0][0] - pts[pts.Count - 1][0]) < 0.001 && Math.Abs(pts[0][1] - pts[pts.Count - 1][1]) < 0.001)
+                pts.RemoveAt(pts.Count - 1);
+            if (pts.Count < 3) return;
+            double area = 0;
+            for (int i = 0; i < pts.Count; i++)
+            {
+                double[] a = pts[i], b = pts[(i + 1) % pts.Count];
+                area += a[0] * b[1] - b[0] * a[1];
+            }
+            if ((outer && area < 0) || (!outer && area > 0)) pts.Reverse();
+            double spacing = outer ? 1.0 : 0.5;
+            List<double[]> dense = new List<double[]>();
+            for (int i = 0; i < pts.Count; i++)
+            {
+                double[] a = pts[i], b = pts[(i + 1) % pts.Count];
+                double len = Math.Sqrt((b[0] - a[0]) * (b[0] - a[0]) + (b[1] - a[1]) * (b[1] - a[1]));
+                int n = Math.Max(1, (int)Math.Floor(len / spacing));
+                for (int j = 0; j < n; j++) dense.Add(new double[] { a[0] + (b[0] - a[0]) * j / n, a[1] + (b[1] - a[1]) * j / n });
+            }
+            dense.Add(dense[0]);
+            b2.Append("False\r\n").Append(dense.Count.ToString(Inv)).Append("\r\n");
+            for (int i = 0; i < dense.Count; i++)
+            {
+                double[] p = dense[i], q = i == dense.Count - 1 ? dense[1] : dense[i + 1];
+                double h = Math.Atan2(q[0] - p[0], q[1] - p[1]);
+                if (h < 0) h += 2 * Math.PI;
+                b2.Append(p[0].ToString("0.000", Inv)).Append(',').Append(p[1].ToString("0.000", Inv)).Append(',')
+                  .Append(h.ToString("0.#####", Inv)).Append("\r\n");
+            }
+        }
+
         static string Esc(string s) { return System.Security.SecurityElement.Escape(s); }
+
+        // ------------------------------------------------------------ Vipu file
+        /// <summary>Reads the parcel file downloaded from Vipu (lohkot&lt;tilatunnus&gt;_&lt;vuosi&gt;.zip or its KML files).
+        /// Returns basic parcels (peruslohkot) or agricultural parcels (kasvulohkot).</summary>
+        public static List<Parcel> ReadVipu(string path, bool kasvulohkot)
+        {
+            string perus = null, kasvu = null;
+            int year = 0;
+            Match ym = Regex.Match(Path.GetFileName(path), @"_(\d{4})");
+            if (ym.Success) year = int.Parse(ym.Groups[1].Value);
+            if (path.EndsWith(".zip", StringComparison.OrdinalIgnoreCase))
+            {
+                using (System.IO.Compression.ZipArchive z = System.IO.Compression.ZipFile.OpenRead(path))
+                {
+                    foreach (System.IO.Compression.ZipArchiveEntry e in z.Entries)
+                    {
+                        string n = e.FullName.Replace('\\', '/').ToLowerInvariant();
+                        if (n.IndexOf("wgs84/") < 0 || !n.EndsWith(".kml")) continue;
+                        using (StreamReader r = new StreamReader(e.Open(), Encoding.UTF8))
+                        {
+                            if (n.EndsWith("peruslohko.kml")) perus = r.ReadToEnd();
+                            else if (n.EndsWith("kasvulohko.kml")) kasvu = r.ReadToEnd();
+                        }
+                    }
+                    if (year == 0) foreach (System.IO.Compression.ZipArchiveEntry e in z.Entries)
+                    {
+                        Match m2 = Regex.Match(e.FullName, @"_(\d{4})");
+                        if (m2.Success) { year = int.Parse(m2.Groups[1].Value); break; }
+                    }
+                }
+            }
+            else
+            {
+                string txt = File.ReadAllText(path, Encoding.UTF8);
+                if (txt.IndexOf("\"kltunnus\"", StringComparison.OrdinalIgnoreCase) >= 0) kasvu = txt; else perus = txt;
+                string other = Path.Combine(Path.GetDirectoryName(path), kasvu == txt ? "peruslohko.kml" : "kasvulohko.kml");
+                if (File.Exists(other)) { if (kasvu == txt) perus = File.ReadAllText(other, Encoding.UTF8); else kasvu = File.ReadAllText(other, Encoding.UTF8); }
+            }
+            if (perus == null && kasvu == null) throw new Exception(Lang.T("pi.err.notVipu"));
+            string src = "Vipu" + (year > 0 ? " " + year : "");
+
+            List<Parcel> perusList = perus == null ? new List<Parcel>() : ReadKml(perus, year, src);
+            Dictionary<string, Parcel> byId = new Dictionary<string, Parcel>();
+            foreach (Parcel p in perusList) byId[p.Tunnus] = p;
+            List<Parcel> kasvuList = kasvu == null ? new List<Parcel>() : ReadKml(kasvu, year, src);
+            foreach (Parcel k in kasvuList)
+            {
+                Parcel pp;
+                if (byId.TryGetValue(k.Tunnus, out pp))
+                {
+                    if (k.Name == "") k.Name = pp.Name;
+                    if (k.Crops != "" && pp.Crops.IndexOf(k.Crops, StringComparison.OrdinalIgnoreCase) < 0)
+                        pp.Crops += (pp.Crops == "" ? "" : ", ") + k.Crops;
+                }
+            }
+            if (kasvulohkot && kasvuList.Count > 0)
+            {
+                foreach (Parcel k in kasvuList) if (k.KlTunnus != "") k.Name = (k.Name + " " + k.KlTunnus).Trim();
+                return kasvuList;
+            }
+            return perusList.Count > 0 ? perusList : kasvuList;
+        }
+
+        static List<Parcel> ReadKml(string kml, int year, string src)
+        {
+            List<Parcel> list = new List<Parcel>();
+            foreach (Match pm in Regex.Matches(kml, @"<Placemark\b.*?</Placemark>", RegexOptions.Singleline))
+            {
+                string t = pm.Value;
+                Dictionary<string, string> d = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+                foreach (Match dm in Regex.Matches(t, @"<(?:Simple)?Data name=""([^""]+)"">\s*(?:<value>)?([^<]*)", RegexOptions.Singleline))
+                    d[dm.Groups[1].Value] = System.Net.WebUtility.HtmlDecode(dm.Groups[2].Value).Trim();
+                Parcel pc = new Parcel();
+                string v;
+                if (d.TryGetValue("pltunnus", out v)) pc.Tunnus = Regex.Replace(v, @"\D", "");
+                if (d.TryGetValue("nimi", out v)) pc.Name = v;
+                if (d.TryGetValue("kltunnus", out v)) pc.KlTunnus = v;
+                if (d.TryGetValue("ala", out v)) double.TryParse(v.Replace(',', '.'), NumberStyles.Float, Inv, out pc.AreaHa);
+                string crop = d.TryGetValue("kasvi", out v) ? v : "";
+                if (d.TryGetValue("lajike", out v) && v != "") crop += " " + v;
+                pc.Crops = crop.Trim();
+                pc.Year = year;
+                pc.Source = src;
+                // the largest polygon of the placemark, with its holes
+                List<double[]> bestOuter = null; List<List<double[]>> bestHoles = null; double bestA = -1;
+                foreach (Match poly in Regex.Matches(t, @"<Polygon\b.*?</Polygon>", RegexOptions.Singleline))
+                {
+                    Match om = Regex.Match(poly.Value, @"<outerBoundaryIs>.*?<coordinates>([^<]*)</coordinates>", RegexOptions.Singleline);
+                    if (!om.Success) continue;
+                    List<double[]> outer = Coords(om.Groups[1].Value);
+                    double a = Math.Abs(GeoArea(outer));
+                    if (a <= bestA) continue;
+                    bestA = a; bestOuter = outer; bestHoles = new List<List<double[]>>();
+                    foreach (Match im in Regex.Matches(poly.Value, @"<innerBoundaryIs>.*?<coordinates>([^<]*)</coordinates>", RegexOptions.Singleline))
+                    {
+                        List<double[]> h = Coords(im.Groups[1].Value);
+                        if (h.Count >= 3) bestHoles.Add(h);
+                    }
+                }
+                if (bestOuter == null || bestOuter.Count < 3) continue;
+                pc.Ring = bestOuter; pc.Holes = bestHoles;
+                double sl = 0, so = 0;
+                foreach (double[] p in pc.Ring) { sl += p[0]; so += p[1]; }
+                pc.CLat = sl / pc.Ring.Count; pc.CLon = so / pc.Ring.Count;
+                list.Add(pc);
+            }
+            return list;
+        }
+
+        static List<double[]> Coords(string text)
+        {
+            List<double[]> r = new List<double[]>();
+            foreach (string item in text.Split(new char[] { ' ', '\n', '\r', '\t' }, StringSplitOptions.RemoveEmptyEntries))
+            {
+                string[] c = item.Split(',');
+                double lon, lat;
+                if (c.Length >= 2 && double.TryParse(c[0], NumberStyles.Float, Inv, out lon) && double.TryParse(c[1], NumberStyles.Float, Inv, out lat))
+                    r.Add(new double[] { lat, lon });
+            }
+            return r;
+        }
+
+        static double GeoArea(List<double[]> ring)
+        {
+            double a = 0;
+            for (int i = 0; i < ring.Count; i++)
+            {
+                double[] p = ring[i], q = ring[(i + 1) % ring.Count];
+                a += p[1] * q[0] - q[1] * p[0];
+            }
+            return a / 2;
+        }
 
         static void W(string dir, string file, string text)
         {
