@@ -510,7 +510,7 @@ namespace AgPath
                 else if (c == "TSTDBDateEdit") dateEdit = h;
                 else if (c == "TSTDBMemo") memo = h;
             }
-            leftEdits.Sort(delegate(IntPtr a, IntPtr b) { return Rect(a).T.CompareTo(Rect(b).T); });
+            leftEdits.Sort(delegate(IntPtr e1, IntPtr e2) { return Rect(e1).T.CompareTo(Rect(e2).T); });
             // order on screen: Tapahtumakerta, Ala ha, (Yksikkö), Määrä/ha, Määrä/ala
             if (leftEdits.Count < 3 || dateEdit == IntPtr.Zero || ok == IntPtr.Zero)
                 throw new AnException(T("an.err.editDialog"));
