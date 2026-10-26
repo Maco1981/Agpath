@@ -167,6 +167,16 @@ Huomioita:
 * **Tallennuskansio**: minne ajot tallennetaan.
 * **Kuunteluosoite**: muuta vain, jos AgPath ilmoittaa, ettei se saa porttia auki.
 
+### Peltojen rajat Ruokaviraston peruslohkoista
+
+**Asetukset → Tuo peltojen rajat Ruokaviraston peruslohkoista…** hakee peruslohkot Ruokaviraston avoimesta
+peltolohkorekisteristä (CC BY 4.0) traktorin sijainnin tai valitun AgOpenGPS-pellon ympäriltä, tai lohkotunnusten
+perusteella. Rastita lohkot, anna niille nimet ja paina **Luo valitut AgOpenGPS:ään**: jokaisesta tulee uusi
+AgOpenGPS-pelto valmiilla rajalla. Olemassa oleviin peltoihin ei kosketa. **Näytä kartalla** näyttää lohkot ilmakuvalla.
+
+Rekisterin rajat on piirretty ilmakuvilta, ja ne ovat yleensä hieman ajettua rajaa suurempia (testissä 2–6 m).
+Ne sopivat pellon tunnistukseen ja karttaan; tarkista raja ennen kuin käytät sitä lohkojen sammutukseen tai päisteisiin.
+
 ## 7. Missä tiedot ovat
 
 ```

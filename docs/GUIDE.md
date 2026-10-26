@@ -161,6 +161,14 @@ AgPath stops and does not set it up. This feature is not made or supported by Su
 * **Save folder**: where the runs are saved.
 * **Listen address**: change it only if AgPath reports that it cannot open a port.
 
+### Field boundaries from the Finnish parcel register
+
+**Settings → Import field boundaries from the Finnish parcel register…** finds basic parcels in the open Land Parcel
+Register of the Finnish Food Authority (CC BY 4.0) around the tractor or a chosen AgOpenGPS field, or by parcel ID.
+Tick the parcels, name them and press **Create ticked fields in AgOpenGPS**: each becomes a new AgOpenGPS field with
+its boundary. Existing fields are not touched. The register boundaries are drawn from aerial photos and are usually a
+little larger than a driven boundary (2–6 m in a test), so check them before using them for section control or headlands.
+
 ## 7. Where the data is
 
 ```
