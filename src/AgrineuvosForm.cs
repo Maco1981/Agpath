@@ -87,6 +87,7 @@ namespace AgPath
         public Dictionary<string, string> Item = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
         public Dictionary<string, string> Amount = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
         public Dictionary<string, string> Exported = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        public Dictionary<string, double> AreaOverride = new Dictionary<string, double>(StringComparer.OrdinalIgnoreCase);
         public bool UseCovered = true;
 
         static string MapFile { get { return Path.Combine(Program.AppDir, "agrineuvos.txt"); } }
@@ -103,6 +104,11 @@ namespace AgPath
                     if (p.Length >= 3 && p[0] == "F") m.Lohko[p[1]] = p[2];
                     else if (p.Length >= 3 && p[0] == "I") { m.Item[p[1]] = p[2]; if (p.Length >= 4) m.Amount[p[1]] = p[3]; }
                     else if (p.Length >= 3 && p[0] == "X") m.Exported[p[1]] = p[2];
+                    else if (p.Length >= 3 && p[0] == "H")
+                    {
+                        double h;
+                        if (double.TryParse(p[2], NumberStyles.Float, CultureInfo.InvariantCulture, out h) && h > 0) m.AreaOverride[p[1]] = h;
+                    }
                     else if (p.Length >= 2 && p[0] == "A") m.UseCovered = p[1] != "driven";
                 }
             }
@@ -124,6 +130,7 @@ namespace AgPath
                 if (C(kv.Value) != "") lines.Add("I\t" + C(kv.Key) + "\t" + C(kv.Value) + "\t" + C(a));
             }
             foreach (KeyValuePair<string, string> kv in Exported) lines.Add("X\t" + C(kv.Key) + "\t" + C(kv.Value));
+            foreach (KeyValuePair<string, double> kv in AreaOverride) lines.Add("H\t" + C(kv.Key) + "\t" + kv.Value.ToString("0.####", CultureInfo.InvariantCulture));
             try { File.WriteAllLines(MapFile, lines.ToArray(), new UTF8Encoding(false)); }
             catch (Exception ex) { Log.Write("Agrineuvos mapping: " + ex.Message); }
         }
@@ -138,7 +145,7 @@ namespace AgPath
         readonly AnMapping map = AnMapping.Load();
         List<AnRun> runs = new List<AnRun>();
         ListView lv;
-        TextBox tbLohko, tbItem, tbAmount;
+        TextBox tbLohko, tbItem, tbAmount, tbArea;
         Label lblSel, lblStatus;
         CheckBox chkShowDone;
         RadioButton rbCovered, rbDriven;
@@ -219,19 +226,22 @@ namespace AgPath
             Controls.Add(g);
             lblSel = Ui.Lbl(g, "", 12, 22, 950, 22, 9);
             lblSel.ForeColor = Color.DimGray;
-            Ui.Lbl(g, Lang.T("an.lohko") + ":", 12, 52, 300, 22, 9);
-            tbLohko = new TextBox(); tbLohko.SetBounds(12, 76, 200, 28); g.Controls.Add(tbLohko);
-            Ui.Lbl(g, Lang.T("an.item") + ":", 230, 52, 420, 22, 9);
-            tbItem = new TextBox(); tbItem.SetBounds(230, 76, 420, 28); g.Controls.Add(tbItem);
-            Ui.Lbl(g, Lang.T("an.amount") + ":", 668, 52, 290, 22, 9);
-            tbAmount = new TextBox(); tbAmount.SetBounds(668, 76, 120, 28); g.Controls.Add(tbAmount);
-            Button kb = Ui.Btn(g, "⌨", 800, 74, 44, 30, Ui.Grey, 12);
+            Ui.Lbl(g, Lang.T("an.lohko") + ":", 12, 52, 200, 22, 9);
+            tbLohko = new TextBox(); tbLohko.SetBounds(12, 76, 150, 28); g.Controls.Add(tbLohko);
+            Ui.Lbl(g, Lang.T("an.item") + ":", 176, 52, 400, 22, 9);
+            tbItem = new TextBox(); tbItem.SetBounds(176, 76, 380, 28); g.Controls.Add(tbItem);
+            Ui.Lbl(g, Lang.T("an.amount") + ":", 570, 52, 150, 22, 9);
+            tbAmount = new TextBox(); tbAmount.SetBounds(570, 76, 110, 28); g.Controls.Add(tbAmount);
+            Ui.Lbl(g, Lang.T("an.areaThis") + ":", 694, 52, 200, 22, 9);
+            tbArea = new TextBox(); tbArea.SetBounds(694, 76, 110, 28); g.Controls.Add(tbArea);
+            Button kb = Ui.Btn(g, "⌨", 818, 74, 44, 30, Ui.Grey, 12);
             kb.Click += delegate { Ui.Keyboard(); };
             Label hint = Ui.Lbl(g, Lang.T("an.mappingHint"), 12, 106, 950, 20, 8);
             hint.ForeColor = Color.DimGray;
             tbLohko.TextChanged += delegate { EditMapping(); };
             tbItem.TextChanged += delegate { EditMapping(); };
             tbAmount.TextChanged += delegate { EditMapping(); };
+            tbArea.TextChanged += delegate { EditArea(); };
 
             y += 140;
             lblStatus = Ui.Lbl(this, "", 12, y + 6, 560, 44, 9);
@@ -253,7 +263,28 @@ namespace AgPath
             ShowSelected();
         }
 
-        double AreaOf(AnRun r) { return map.UseCovered && r.CoveredHa > 0 ? r.CoveredHa : r.AreaHa; }
+        double MeasuredArea(AnRun r) { return map.UseCovered && r.CoveredHa > 0 ? r.CoveredHa : r.AreaHa; }
+
+        double AreaOf(AnRun r)
+        {
+            double h;
+            return map.AreaOverride.TryGetValue(r.Id, out h) ? h : MeasuredArea(r);
+        }
+
+        void EditArea()
+        {
+            if (filling) return;
+            AnRun r = Selected();
+            if (r == null) return;
+            string t = tbArea.Text.Trim().Replace(',', '.');
+            double h;
+            if (t == "") map.AreaOverride.Remove(r.Id);
+            else if (double.TryParse(t, NumberStyles.Float, CultureInfo.InvariantCulture, out h) && h > 0 && h < 10000) map.AreaOverride[r.Id] = h;
+            else { tbArea.BackColor = Color.MistyRose; return; }
+            tbArea.BackColor = SystemColors.Window;
+            map.Save();
+            RefreshRows();
+        }
 
         void Fill()
         {
@@ -269,7 +300,7 @@ namespace AgPath
                 ListViewItem it = new ListViewItem(r.Start.ToString("d", Lang.Culture) + " " + r.Start.ToString("HH:mm"));
                 it.SubItems.Add(r.Field);
                 it.SubItems.Add(r.Title);
-                it.SubItems.Add(AreaOf(r).ToString("0.00", Lang.Culture));
+                it.SubItems.Add(AreaOf(r).ToString("0.00", Lang.Culture) + (map.AreaOverride.ContainsKey(r.Id) ? " *" : ""));
                 it.SubItems.Add(map.Get(map.Lohko, r.Field));
                 it.SubItems.Add(map.Get(map.Item, r.ItemKey));
                 it.SubItems.Add(map.Get(map.Amount, r.ItemKey));
@@ -292,6 +323,7 @@ namespace AgPath
                 it.SubItems[4].Text = map.Get(map.Lohko, r.Field);
                 it.SubItems[5].Text = map.Get(map.Item, r.ItemKey);
                 it.SubItems[6].Text = map.Get(map.Amount, r.ItemKey);
+                it.SubItems[3].Text = AreaOf(r).ToString("0.00", Lang.Culture) + (map.AreaOverride.ContainsKey(r.Id) ? " *" : "");
             }
         }
 
@@ -302,11 +334,15 @@ namespace AgPath
             AnRun r = Selected();
             filling = true;
             bool en = r != null;
-            tbLohko.Enabled = tbItem.Enabled = tbAmount.Enabled = en;
+            tbLohko.Enabled = tbItem.Enabled = tbAmount.Enabled = tbArea.Enabled = en;
+            double ov;
+            tbArea.Text = en && map.AreaOverride.TryGetValue(r.Id, out ov) ? ov.ToString("0.##", Lang.Culture) : "";
+            tbArea.BackColor = SystemColors.Window;
             tbLohko.Text = en ? map.Get(map.Lohko, r.Field) : "";
             tbItem.Text = en ? map.Get(map.Item, r.ItemKey) : "";
             tbAmount.Text = en ? map.Get(map.Amount, r.ItemKey) : "";
-            lblSel.Text = en ? Lang.T("an.selected", r.Field == "" ? "–" : r.Field, r.Title) : Lang.T("an.selectRow");
+            lblSel.Text = en ? Lang.T("an.selected", r.Field == "" ? "–" : r.Field, r.Title) + "  " +
+                               Lang.T("an.measured", MeasuredArea(r).ToString("0.00", Lang.Culture)) : Lang.T("an.selectRow");
             filling = false;
         }
 
