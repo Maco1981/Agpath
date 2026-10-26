@@ -441,6 +441,7 @@ namespace AgPath
             }
             if (grid == IntPtr.Zero) throw new AnException(T("an.err.tab"));
             RECT r = Rect(grid);
+            L("Operations list at " + r.L + "," + r.T + " - " + r.R + "," + r.B);
             RightClickAt(r.L + (int)(80 * scale), r.T + (r.B - r.T) * 3 / 4);
             AutomationElement item = null;
             for (int i = 0; i < 20 && item == null; i++)
@@ -678,7 +679,13 @@ namespace AgPath
             IntPtr at = WindowFromPoint(new POINT { X = x, Y = y });
             uint p;
             GetWindowThreadProcessId(at, out p);
-            if (p != pid) throw new AnException(T("an.err.covered"));
+            if (p != pid)
+            {
+                string pname = "";
+                try { pname = Process.GetProcessById((int)p).ProcessName; } catch { }
+                L("Point " + x + "," + y + " is covered by [" + Cls(at) + "] \"" + GetText(at) + "\" process " + pname);
+                throw new AnException(T("an.err.covered"));
+            }
             int vx = GetSystemMetrics(76), vy = GetSystemMetrics(77), vw = GetSystemMetrics(78), vh = GetSystemMetrics(79);
             int nx = (int)Math.Round((x - vx) * 65535.0 / Math.Max(1, vw - 1));
             int ny = (int)Math.Round((y - vy) * 65535.0 / Math.Max(1, vh - 1));
