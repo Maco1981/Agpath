@@ -204,7 +204,7 @@ namespace AgPath
                 double[] a = pts[i], b = pts[(i + 1) % pts.Count];
                 double len = Math.Sqrt((b[0] - a[0]) * (b[0] - a[0]) + (b[1] - a[1]) * (b[1] - a[1]));
                 int n = Math.Max(1, (int)Math.Floor(len / 1.0));
-                for (int k = 0; k < n; k++) dense.Add(new double[] { a[0] + (b[0] - a[0]) * k / n, a[1] + (b[1] - a[1]) * k / n });
+                for (int j = 0; j < n; j++) dense.Add(new double[] { a[0] + (b[0] - a[0]) * j / n, a[1] + (b[1] - a[1]) * j / n });
             }
             dense.Add(dense[0]);
 
