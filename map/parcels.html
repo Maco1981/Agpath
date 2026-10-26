@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AgPath – peruslohkot</title>
+<link rel="stylesheet" href="leaflet.css">
+<style>
+  html, body { margin: 0; height: 100%; font-family: "Segoe UI", Arial, sans-serif; }
+  #map { position: absolute; top: 0; bottom: 0; left: 0; right: 0; }
+  .lbl { background: rgba(255,255,255,0.85); border: 1px solid #888; border-radius: 3px; padding: 1px 4px; font-size: 12px; line-height: 1.25; white-space: nowrap; box-shadow: none; }
+  .lbl b { font-size: 13px; }
+  #info { position: absolute; z-index: 1000; left: 50px; top: 10px; background: #fff; padding: 6px 10px; border-radius: 4px; box-shadow: 0 1px 4px rgba(0,0,0,.3); font-size: 13px; max-width: 70%; }
+</style>
+</head>
+<body>
+<div id="map"></div>
+<div id="info"></div>
+<script src="leaflet.js"></script>
+<script src="parcels.js" onerror="window.NO_PARCELS=true"></script>
+<script>
+(function () {
+  var P = window.PARCELS || { map: { provider: "osm" }, parcels: [], texts: {} };
+  var T = P.texts || {};
+  function t(k) { return T[k] || k; }
+  function esc(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+  var M = P.map || { provider: "osm" };
+  var map = L.map("map").setView([62, 26], 6);
+  var bases = {};
+  function mml(layer, ext) {
+    return L.tileLayer("https://avoin-karttakuva.maanmittauslaitos.fi/avoin/wmts/1.0.0/" + layer +
+      "/default/WGS84_Pseudo-Mercator/{z}/{y}/{x}." + ext + "?api-key=" + encodeURIComponent(M.mmlKey || ""),
+      { maxNativeZoom: 16, maxZoom: 20, attribution: "&copy; Maanmittauslaitos" });
+  }
+  if (M.provider === "mml" && M.mmlKey) {
+    bases[t("ortho")] = mml("ortokuva", "jpg");
+    bases[t("topo")] = mml("maastokartta", "png");
+  } else if (M.provider === "custom" && M.url) {
+    bases[t("custom")] = L.tileLayer(M.url, { maxZoom: 20, attribution: esc(M.attribution || "") });
+  }
+  bases["OpenStreetMap"] = L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+    { maxNativeZoom: 19, maxZoom: 20, attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>' });
+  bases[Object.keys(bases)[0]].addTo(map);
+  L.control.layers(bases, null, { collapsed: true }).addTo(map);
+  map.attributionControl.addAttribution(esc(P.attribution || ""));
+
+  var all = L.featureGroup().addTo(map);
+  if (P.fields && P.fields.features && P.fields.features.length) {
+    L.geoJSON(P.fields, { style: { color: "#c000c0", weight: 2, fillOpacity: 0.03, dashArray: "6 4" },
+      onEachFeature: function (f, l) { l.bindTooltip("AgOpenGPS: " + esc(f.properties.field)); } }).addTo(map);
+  }
+  P.parcels.forEach(function (p) {
+    var color = p.overlaps ? "#888888" : (p.selected ? "#1a9e2e" : "#e07000");
+    var poly = L.polygon(p.ring, { color: color, weight: 2, fillOpacity: p.selected ? 0.25 : 0.08 }).addTo(all);
+    var txt = "<b>" + esc(p.name || p.pretty) + "</b>" + (p.name ? "<br>" + esc(p.pretty) : "") +
+              "<br>" + esc(p.area) + " ha" + (p.crops ? " · " + esc(p.crops) : "") +
+              (p.overlaps ? "<br>" + esc(t("overlaps")) + " " + esc(p.overlaps) : "");
+    poly.bindTooltip(txt, { permanent: true, direction: "center", className: "lbl" });
+  });
+  if (P.pos) L.circleMarker(P.pos, { radius: 7, color: "#0050ff", fillOpacity: 0.8 }).bindTooltip(t("you")).addTo(map);
+  if (all.getLayers().length) map.fitBounds(all.getBounds(), { maxZoom: 17 });
+  document.getElementById("info").innerHTML = window.NO_PARCELS ? "parcels.js missing" :
+    esc(t("info")) + " <span style='color:#1a9e2e'>■</span> " + esc(t("selected")) +
+    " <span style='color:#e07000'>■</span> " + esc(t("notSelected")) + " <span style='color:#888'>■</span> " + esc(t("overlapsShort"));
+})();
+</script>
+</body>
+</html>

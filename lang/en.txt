@@ -263,3 +263,47 @@ an.err.timeout = Entering took too long and was stopped. Check the result in Agr
 an.err.seasonNew = Growing season {0} has not been set up in Agrineuvos yet: Agrineuvos opened its settings window. Nothing was saved. Set up the season in Agrineuvos first (or close the window).
 an.areaThis = Area, ha\n(empty = measured)
 an.measured = (measured {0} ha; leave the area box empty to use it)
+
+# Basic parcels (Finland) to AgOpenGPS fields
+pi.open = Import field boundaries from the Finnish parcel register…
+pi.title = AgPath – fields from the Finnish parcel register
+pi.intro = Find basic parcels (peruslohkot) in the open Land Parcel Register of the Finnish Food Authority and create new AgOpenGPS fields with ready boundaries. Existing AgOpenGPS fields are not touched. The register has no field names, so give each new field a name.
+pi.around = Around
+pi.tractor = Current tractor position
+pi.orIds = or parcel IDs
+pi.search = Search
+pi.col.id = Parcel
+pi.col.area = ha
+pi.col.crop = Crop (register)
+pi.col.dist = Distance
+pi.col.aog = Already in AgOpenGPS
+pi.col.name = New field name
+pi.name = Name of the new AgOpenGPS field (selected row)
+pi.hint = Tick the parcels to create and give them names. Grey parcels already lie under an AgOpenGPS field. The boundaries are drawn from aerial photos and can differ from the real edge by about a metre; check before using them for section control or headlands. Several parcel IDs can be given separated by commas, e.g. 492-02056-67.
+pi.showMap = Show on map
+pi.create = Create ticked fields in AgOpenGPS
+pi.noCenter = No position. Start AgOpenGPS, or choose a field to search around, or enter parcel IDs.
+pi.searching = Searching the parcel register…
+pi.found = {0} parcels found (register {1}).
+pi.source = Source: {0}, {1}
+pi.noneChecked = Tick the parcels to create first.
+pi.confirm = {0} new field(s) will be created in
+{1}
+
+Existing fields are not touched. Continue?
+pi.created = {0} field(s) created.
+pi.createdHint = The fields are listed in AgOpenGPS (open field). If AgOpenGPS is open, close and reopen the field list.
+pi.err.search = Search failed: {0}
+pi.err.noLayer = The parcel register was not found in the service.
+pi.err.exists = Field "{0}" already exists. Choose another name.
+pi.err.badName = The name "{0}" has characters that can't be used in a folder name.
+pi.err.noAog = AgOpenGPS field folder not found: {0}
+pi.map.ortho = Aerial photo
+pi.map.topo = Topographic map
+pi.map.custom = Custom map
+pi.map.overlaps = Already in AgOpenGPS:
+pi.map.overlapsShort = already in AgOpenGPS
+pi.map.you = Tractor / search point
+pi.map.info = Parcels:
+pi.map.selected = ticked
+pi.map.notSelected = not ticked

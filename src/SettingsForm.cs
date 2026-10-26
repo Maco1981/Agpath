@@ -175,6 +175,16 @@ namespace AgPath
             Ui.Lbl(this, Lang.T("settings.listenIp") + ":", R, y + 3, 400, 24, 9);
             tbIp = new TextBox(); tbIp.SetBounds(R + W - 165, y, 165, 28); tbIp.Text = s.ListenIp; Controls.Add(tbIp);
             y += 40;
+            Button bParcels = Ui.Btn(this, Lang.T("pi.open"), R, y, W, 34, Ui.Grey, 9);
+            bParcels.Click += delegate
+            {
+                string aog = tbAog.Text.Trim() != "" ? tbAog.Text.Trim() : s.AogBaseDir;
+                string old2 = s.AogBaseDir;
+                s.AogBaseDir = aog;
+                try { using (ParcelForm pf = new ParcelForm(s)) pf.ShowDialog(this); }
+                finally { s.AogBaseDir = old2; }
+            };
+            y += 42;
 
             y = Math.Max(y, leftBottom) + 6;
             Button ok = Ui.Btn(this, "OK", R + W - 255, y, 120, 48, Ui.Green, 12);

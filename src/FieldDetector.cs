@@ -116,6 +116,14 @@ namespace AgPath
             return sb.ToString();
         }
 
+        /// <summary>Centre {lat, lon} of a field's boundary, or null if it has none.</summary>
+        public double[] Center(string name)
+        {
+            foreach (FieldPoly f in polys)
+                if (f.Name == name) return new double[] { (f.MinLat + f.MaxLat) / 2, (f.MinLon + f.MaxLon) / 2 };
+            return null;
+        }
+
         public string FieldAt(double lat, double lon)
         {
             foreach (FieldPoly f in polys) if (Inside(f, lat, lon)) return f.Name;

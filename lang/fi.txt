@@ -262,3 +262,47 @@ an.err.timeout = Kirjaus kesti liian kauan ja keskeytettiin. Tarkista tilanne Ag
 an.err.seasonNew = Kasvukautta {0} ei ole vielä perustettu Agrineuvoksessa: Agrineuvos avasi sen asetusikkunan. Mitään ei tallennettu. Perusta kasvukausi ensin Agrineuvoksessa (tai sulje ikkuna).
 an.areaThis = Pinta-ala, ha\n(tyhjä = mitattu ala)
 an.measured = (mitattu {0} ha; jätä ala-kenttä tyhjäksi, niin käytetään sitä)
+
+# Peruslohkojen tuonti AgOpenGPS:ään
+pi.open = Tuo peltojen rajat Ruokaviraston peruslohkoista…
+pi.title = AgPath – pellot Ruokaviraston peruslohkoista
+pi.intro = Hae peruslohkot Ruokaviraston avoimesta peltolohkorekisteristä ja luo niistä uusia AgOpenGPS-peltoja valmiilla rajalla. Olemassa oleviin AgOpenGPS-peltoihin ei kosketa. Rekisterissä ei ole lohkojen nimiä, joten anna jokaiselle pellolle nimi.
+pi.around = Ympäriltä
+pi.tractor = Traktorin nykyinen sijainti
+pi.orIds = tai lohkotunnukset
+pi.search = Hae
+pi.col.id = Peruslohko
+pi.col.area = ha
+pi.col.crop = Kasvi (rekisteri)
+pi.col.dist = Etäisyys
+pi.col.aog = Jo AgOpenGPS:ssä
+pi.col.name = Uuden pellon nimi
+pi.name = Uuden AgOpenGPS-pellon nimi (valittu rivi)
+pi.hint = Rastita luotavat lohkot ja anna nimet. Harmaat lohkot ovat jo jonkin AgOpenGPS-pellon kohdalla. Rajat on piirretty ilmakuvilta, ja ne voivat poiketa todellisesta reunasta noin metrin; tarkista raja ennen kuin käytät sitä lohkojen sammutukseen tai päisteisiin. Lohkotunnuksia voi antaa useita pilkulla erotettuina, esim. 492-02056-67.
+pi.showMap = Näytä kartalla
+pi.create = Luo valitut AgOpenGPS:ään
+pi.noCenter = Sijaintia ei ole. Käynnistä AgOpenGPS tai valitse pelto, jonka ympäriltä haetaan, tai anna lohkotunnukset.
+pi.searching = Haetaan Ruokavirastosta…
+pi.found = Löytyi {0} peruslohkoa (rekisteri {1}).
+pi.source = Lähde: {0}, {1}
+pi.noneChecked = Rastita ensin luotavat lohkot.
+pi.confirm = Luodaan {0} uutta peltoa kansioon
+{1}
+
+Olemassa oleviin peltoihin ei kosketa. Jatketaanko?
+pi.created = {0} peltoa luotu.
+pi.createdHint = Pellot näkyvät AgOpenGPS:n peltoluettelossa (Avaa pelto). Jos AgOpenGPS on auki, sulje ja avaa peltovalikko uudelleen.
+pi.err.search = Haku epäonnistui: {0}
+pi.err.noLayer = Ruokaviraston palvelusta ei löytynyt peltolohkorekisteriä.
+pi.err.exists = Pelto "{0}" on jo olemassa. Anna toinen nimi.
+pi.err.badName = Nimessä "{0}" on merkkejä, joita ei voi käyttää kansion nimessä.
+pi.err.noAog = AgOpenGPS:n peltokansiota ei löydy: {0}
+pi.map.ortho = Ilmakuva
+pi.map.topo = Maastokartta
+pi.map.custom = Oma kartta
+pi.map.overlaps = Jo AgOpenGPS:ssä:
+pi.map.overlapsShort = jo AgOpenGPS:ssä
+pi.map.you = Traktori / hakukohta
+pi.map.info = Peruslohkot:
+pi.map.selected = valittu
+pi.map.notSelected = ei valittu

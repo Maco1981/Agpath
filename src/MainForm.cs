@@ -83,6 +83,11 @@ namespace AgPath
             PlaceWindow();
             UpdateRecButton();
 
+            ParcelForm.CurrentPosition = delegate
+            {
+                double la, lo;
+                return rx.HasPosition && rx.LastPosition(out la, out lo) ? new double[] { la, lo } : null;
+            };
             Load += OnLoadForm;
             FormClosing += OnClosingForm;
             Move += delegate
@@ -360,7 +365,9 @@ namespace AgPath
             string oldLang = settings.Language;
             using (SettingsForm f = new SettingsForm(settings))
             {
-                if (f.ShowDialog(this) == DialogResult.OK)
+                DialogResult res = f.ShowDialog(this);
+                fields.Load(settings.AogBaseDir); // fields may have been created from the parcel register
+                if (res == DialogResult.OK)
                 {
                     settings.Save();
                     TopMost = settings.TopMost;
