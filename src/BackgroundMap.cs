@@ -68,6 +68,7 @@ namespace AgPath
                 z--;
             }
             int w = Math.Max(1, (int)Math.Round(x1 - x0)), h = Math.Max(1, (int)Math.Round(y1 - y0));
+            int ox = (int)Math.Round(x0), oy = (int)Math.Round(y0);
             int tx0 = (int)Math.Floor(x0 / 256), tx1 = (int)Math.Floor(x1 / 256), ty0 = (int)Math.Floor(y0 / 256), ty1 = (int)Math.Floor(y1 / 256);
 
             using (Bitmap bmp = new Bitmap(w, h, PixelFormat.Format24bppRgb))
@@ -85,7 +86,7 @@ namespace AgPath
                         byte[] data = wc.DownloadData(url);
                         using (MemoryStream ms = new MemoryStream(data))
                         using (Image tile = Image.FromStream(ms))
-                            g.DrawImage(tile, (float)(tx * 256 - x0), (float)(ty * 256 - y0), 256f, 256f);
+                            g.DrawImageUnscaled(tile, tx * 256 - ox, ty * 256 - oy); // whole pixels: no seams
                     }
                 string png = Path.Combine(fieldDir, "BackPic.png");
                 if (File.Exists(png)) File.Delete(png);
