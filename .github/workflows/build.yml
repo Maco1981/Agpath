@@ -48,3 +48,20 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           VERSION: ${{ startsWith(github.ref, 'refs/tags/v') && github.ref_name || inputs.version }}
         run: gh release create "$env:VERSION" AgPath.zip --target "${{ github.sha }}" --title "AgPath $env:VERSION" --generate-notes
+
+      - name: Publish development build to the dev-builds branch (non-main branches only)
+        if: github.ref != 'refs/heads/main' && !startsWith(github.ref, 'refs/tags/')
+        shell: pwsh
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@users.noreply.github.com"
+          $tmp = Join-Path $env:RUNNER_TEMP "devb"
+          New-Item -ItemType Directory -Force $tmp | Out-Null
+          Copy-Item AgPath.zip $tmp
+          git checkout --orphan dev-builds
+          git rm -rf -q .
+          git clean -fdxq
+          Copy-Item "$tmp\AgPath.zip" .
+          git add AgPath.zip
+          git commit -q -m "Development build of ${{ github.ref_name }} ${{ github.sha }}"
+          git push -f origin dev-builds
