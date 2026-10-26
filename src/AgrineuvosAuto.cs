@@ -83,11 +83,36 @@ namespace AgPath
                     AnJob j = AnJob.FromLine(line);
                     if (j != null) jobs.Add(j);
                 }
-                Run(jobs, delegate(AnJob j, string err)
+                // UI Automation clients must run on an MTA thread (an STA thread can hang)
+                Exception inner = null;
+                Thread th = new Thread(delegate()
                 {
-                    results.Add((err == null ? "OK" : "ERR") + "\t" + j.Id.Replace("\t", " ") + "\t" + (err ?? "").Replace("\t", " ").Replace("\n", " "));
-                    File.WriteAllLines(resultFile, results.ToArray(), Encoding.UTF8);
+                    try
+                    {
+                        Run(jobs, delegate(AnJob j, string err)
+                        {
+                            lock (results)
+                            {
+                                results.Add((err == null ? "OK" : "ERR") + "\t" + j.Id.Replace("\t", " ") + "\t" + (err ?? "").Replace("\t", " ").Replace("\n", " "));
+                                File.WriteAllLines(resultFile, results.ToArray(), Encoding.UTF8);
+                            }
+                        });
+                    }
+                    catch (Exception ex) { inner = ex; }
                 });
+                th.SetApartmentState(ApartmentState.MTA);
+                th.IsBackground = true;
+                th.Start();
+                // safety net: never keep operating the computer for long
+                if (!th.Join(TimeSpan.FromSeconds(60 + 120 * jobs.Count)))
+                {
+                    L("TIMEOUT");
+                    lock (results) results.Add("FATAL\t\t" + T("an.err.timeout"));
+                    File.WriteAllLines(resultFile, results.ToArray(), Encoding.UTF8);
+                    if (logW != null) logW.Dispose();
+                    Environment.Exit(1);
+                }
+                if (inner != null) throw inner;
             }
             catch (Exception ex)
             {
@@ -111,6 +136,7 @@ namespace AgPath
         static void Run(List<AnJob> jobs, JobDone done)
         {
             Attach();
+            L("Reading season");
             int origSeason = CurrentSeason();
             L("Season now " + origSeason);
             bool fatal = false;
@@ -257,7 +283,10 @@ namespace AgPath
         static int CurrentSeason()
         {
             AutomationElement root = AutomationElement.FromHandle(mainWnd);
-            AutomationElementCollection items = root.FindAll(TreeScope.Descendants,
+            AutomationElement bar = root.FindFirst(TreeScope.Children,
+                new PropertyCondition(AutomationElement.ControlTypeProperty, ControlType.MenuBar));
+            if (bar == null) bar = root;
+            AutomationElementCollection items = bar.FindAll(TreeScope.Descendants,
                 new PropertyCondition(AutomationElement.ControlTypeProperty, ControlType.MenuItem));
             foreach (AutomationElement e in items)
             {

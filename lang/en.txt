@@ -259,3 +259,4 @@ an.err.focus = Another window was activated during the entry, so AgPath stopped.
 an.err.covered = Another window covers Agrineuvos. Move it away and try again.
 an.err.notSaved = Agrineuvos did not close the details window. Check it in Agrineuvos.
 an.err.message = Agrineuvos showed a message. Read it in Agrineuvos.
+an.err.timeout = Entering took too long and was stopped. Check the result in Agrineuvos.

@@ -258,3 +258,4 @@ an.err.focus = Joku muu ikkuna aktivoitui kesken kirjauksen, joten AgPath pysäh
 an.err.covered = Jokin ikkuna peittää Agrineuvoksen. Siirrä se pois ja yritä uudelleen.
 an.err.notSaved = Agrineuvos ei sulkenut tietoikkunaa. Tarkista tilanne Agrineuvoksessa.
 an.err.message = Agrineuvos näytti ilmoituksen. Lue se Agrineuvoksesta.
+an.err.timeout = Kirjaus kesti liian kauan ja keskeytettiin. Tarkista tilanne Agrineuvoksessa.
