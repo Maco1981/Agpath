@@ -100,6 +100,14 @@ Base map (Settings → Base map):
 
 Each user enters their own key; it is stored only in the local `settings.txt` and is never part of this repository.
 
+## Agrineuvos (Finland)
+
+If Suonentieto's Agrineuvos farm management program is installed, an **Agrineuvos** button appears in the
+main window. It enters saved runs into Agrineuvos as completed operations by operating the Agrineuvos windows
+(Agrineuvos has no import for operations) and checks every step before saving. Field IDs and supplies are
+matched once per field and product (`agrineuvos.txt`). See the [guide](docs/GUIDE.md#5c-entering-runs-into-agrineuvos-finland).
+Not affiliated with or supported by Suonentieto.
+
 ## Language
 
 AgPath uses the same language as AgOpenGPS (registry `HKCU\SOFTWARE\AgOpenGPS\Language`), or the one

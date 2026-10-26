@@ -12,6 +12,7 @@ tehdä mitään muutoksia.
 - [4. Tuotteet ja lajikkeet](#4-tuotteet-ja-lajikkeet)
 - [5. Kartta](#5-kartta)
 - [5b. Kartan jakaminen](#5b-kartan-jakaminen)
+- [5c. Kirjaus Agrineuvokseen](#5c-kirjaus-agrineuvokseen)
 - [6. Asetukset](#6-asetukset)
 - [7. Missä tiedot ovat](#7-missä-tiedot-ovat)
 - [8. Ongelmatilanteet](#8-ongelmatilanteet)
@@ -111,6 +112,36 @@ synkronoida. Pomon tarvitsee vain päivittää sivu.
 Huom: jos käytät Maanmittauslaitoksen karttapohjaa, API-avaimesi on mukana jaetussa tiedostossa. Oman
 yrityksen sisällä se on yleensä ok, mutta älä julkaise tiedostoa. Jos et halua jakaa avainta, valitse
 karttapohjaksi **OpenStreetMap**.
+
+## 5c. Kirjaus Agrineuvokseen
+
+Jos koneella on Suonentiedon **Agrineuvos**, AgPathin pääikkunaan tulee painike **Agrineuvos**. Sillä tallennetut
+ajot voi kirjata Agrineuvokseen toteutettuina tapahtumina (lohkon Toteutettu-välilehti): tarvike, päivämäärä,
+pinta-ala, halutessa määrä/ha sekä Info-kenttään ajon tiedot (aika, matka, työleveys, muistiinpanot).
+
+Agrineuvoksessa ei ole tiedostotuontia toimenpiteille, joten AgPath käyttää Agrineuvosta samoin kuin ihminen:
+se avaa lohkon, valitsee *Lisää tapahtuma*, hakee tarvikkeen ja täyttää tiedot. Jokaisessa vaiheessa AgPath
+tarkistaa, että Agrineuvos näyttää oikeaa lohkoa ja tarviketta, ennen kuin se painaa OK. Jos jokin ei täsmää,
+AgPath peruu kyseisen kirjauksen eikä tallenna mitään.
+
+1. Avaa Agrineuvos ja tilasi. Sulje Agrineuvoksesta muut ikkunat.
+2. Paina AgPathissa **Agrineuvos**. Listassa ovat ajot, joita ei ole vielä kirjattu.
+3. Napauta ajoa ja täytä kerran:
+   * **Agrineuvoksen lohkotunnus**, esim. `1-A` (muistetaan tälle AgOpenGPS-lohkolle),
+   * **Tarvike** täsmälleen kuten Agrineuvoksessa, esim. `Kaura Luukas 2025` (muistetaan tälle tuotteelle ja lajikkeelle),
+   * halutessasi **Määrä/ha**.
+4. Valitse, kirjataanko pinta-alaksi **katettu ala** vai **ajettu ala**.
+5. Rastita kirjattavat ajot ja paina **Kirjaa valitut Agrineuvokseen**. Älä käytä hiirtä tai näppäimistöä ennen
+   kuin AgPath ilmoittaa valmistuneensa (noin 20 s / ajo).
+6. Tarkista tulos Agrineuvoksessa. Kirjatut ajot merkitään AgPathissa kirjatuiksi, eikä niitä kirjata uudelleen.
+
+Huomioita:
+
+* Kirjaus tehdään ajon päivämäärän kasvukaudelle. Jos kasvukautta ei ole vielä perustettu Agrineuvoksessa,
+  AgPath pysähtyy eikä perusta sitä.
+* Agrineuvoksen päivitys voi muuttaa sen ikkunoita. Jos kirjaus alkaa epäonnistua päivityksen jälkeen, tee
+  [ilmoitus](https://github.com/Maco1981/Agpath/issues). Tapahtumat voi aina kirjata myös käsin.
+* Toiminto ei liity Suonentietoon eikä ole heidän tukemansa.
 
 ## 6. Asetukset
 

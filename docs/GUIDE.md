@@ -12,6 +12,7 @@ is not changed in any way.
 - [4. Products and varieties](#4-products-and-varieties)
 - [5. The map](#5-the-map)
 - [5b. Sharing the map](#5b-sharing-the-map)
+- [5c. Entering runs into Agrineuvos (Finland)](#5c-entering-runs-into-agrineuvos-finland)
 - [6. Settings](#6-settings)
 - [7. Where the data is](#7-where-the-data-is)
 - [8. Troubleshooting](#8-troubleshooting)
@@ -111,6 +112,29 @@ has synced. Your boss only needs to reload the page.
 Note: if you use the National Land Survey of Finland base map, your API key is included in the shared file.
 That is fine within your own company, but don't publish the file. If you don't want to share the key,
 choose **OpenStreetMap** as the base map.
+
+## 5c. Entering runs into Agrineuvos (Finland)
+
+If Suonentieto's **Agrineuvos** farm management program is installed, the AgPath main window has an
+**Agrineuvos** button. It enters saved runs into Agrineuvos as completed operations (the field's *Toteutettu*
+tab): supply (tarvike), date, area, optionally amount per hectare, and the run details in the Info field.
+
+Agrineuvos has no file import for operations, so AgPath operates the Agrineuvos windows the way a person would.
+At every step it checks that Agrineuvos shows the right field and supply before it presses OK; if anything does
+not match, it cancels that entry and saves nothing.
+
+1. Open Agrineuvos with your farm and close any other Agrineuvos windows.
+2. Press **Agrineuvos** in AgPath. The list shows the runs not entered yet.
+3. Click a run and fill in once: the **Agrineuvos field ID** (e.g. `1-A`, remembered for this AgOpenGPS field),
+   the **supply** exactly as in Agrineuvos (e.g. `Kaura Luukas 2025`, remembered for this product and variety),
+   and optionally the **amount/ha**.
+4. Choose whether the area is the **covered area** or the **driven area**.
+5. Tick the runs and press **Enter ticked runs into Agrineuvos**. Don't use the mouse or keyboard until AgPath
+   says it is done (about 20 s per run).
+6. Check the result in Agrineuvos. Entered runs are marked and are not entered again.
+
+The entry goes to the growing season of the run date. If that season has not been set up in Agrineuvos,
+AgPath stops and does not set it up. This feature is not made or supported by Suonentieto.
 
 ## 6. Settings
 
