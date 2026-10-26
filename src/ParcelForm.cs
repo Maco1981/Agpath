@@ -32,6 +32,8 @@ namespace AgPath
         bool filling;
         double[] searchCenter;
         RadioButton rbPerus, rbKasvu;
+        CheckBox chkBg;
+        Button btnBgMissing;
         string vipuFile;
 
         public ParcelForm(Settings settings)
@@ -108,12 +110,21 @@ namespace AgPath
             Button kb = Ui.Btn(this, "⌨", 670, y - 1, 44, 30, Ui.Grey, 12);
             kb.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
             kb.Click += delegate { Ui.Keyboard(); };
-            Label hint = Ui.Lbl(this, Lang.T("pi.hint"), 12, y + 36, 976, 52, 8);
+            chkBg = new CheckBox(); chkBg.Text = Lang.T("bg.check"); chkBg.SetBounds(726, y + 2, 262, 26);
+            chkBg.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
+            bool hasKey = s.MmlApiKey.Trim() != "";
+            chkBg.Enabled = hasKey; chkBg.Checked = hasKey;
+            Controls.Add(chkBg);
+            Label hint = Ui.Lbl(this, Lang.T("pi.hint") + (hasKey ? "" : " " + Lang.T("bg.noKey")), 12, y + 36, 976, 52, 8);
             hint.ForeColor = Color.DimGray;
             hint.Anchor = AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
 
             y += 96;
-            lblStatus = Ui.Lbl(this, "", 12, y, 430, 40, 9);
+            lblStatus = Ui.Lbl(this, "", 12, y, 278, 56, 9);
+            btnBgMissing = Ui.Btn(this, Lang.T("bg.missing"), 296, y, 150, 50, Ui.Grey, 9);
+            btnBgMissing.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+            btnBgMissing.Enabled = hasKey;
+            btnBgMissing.Click += delegate { AddMissingBackgrounds(); };
             lblStatus.Anchor = AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             btnMap = Ui.Btn(this, Lang.T("pi.showMap"), 452, y, 150, 50, Ui.Grey, 10);
             btnMap.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
@@ -124,7 +135,7 @@ namespace AgPath
             Button close = Ui.Btn(this, Lang.T("common.close"), 858, y, 130, 50, Ui.Grey, 11);
             close.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
             close.Click += delegate { Close(); };
-            lblSource = Ui.Lbl(this, "", 12, y + 42, 430, 18, 8);
+            lblSource = Ui.Lbl(this, "", 12, y + 56, 600, 18, 8);
             lblSource.ForeColor = Color.DimGray;
             lblSource.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
             btnMap.Enabled = btnCreate.Enabled = false;
@@ -397,8 +408,65 @@ namespace AgPath
             string msg = Lang.T("pi.created", ok);
             if (errors.Count > 0) msg += "\n" + string.Join("\n", errors.ToArray());
             Status(msg, errors.Count > 0);
-            MessageBox.Show(this, msg + "\n\n" + Lang.T("pi.createdHint"), Text, MessageBoxButtons.OK,
-                            errors.Count > 0 ? MessageBoxIcon.Warning : MessageBoxIcon.Information);
+            List<string> dirs = new List<string>();
+            if (chkBg.Checked)
+                foreach (KeyValuePair<Parcel, string> kv in todo)
+                {
+                    string d = Path.Combine(fieldsDir, kv.Value);
+                    if (Directory.Exists(d)) dirs.Add(d);
+                }
+            if (dirs.Count > 0) AddBackgrounds(dirs, msg + "\n\n" + Lang.T("pi.createdHint"));
+            else MessageBox.Show(this, msg + "\n\n" + Lang.T("pi.createdHint"), Text, MessageBoxButtons.OK,
+                                 errors.Count > 0 ? MessageBoxIcon.Warning : MessageBoxIcon.Information);
+        }
+
+        void AddMissingBackgrounds()
+        {
+            List<string> dirs = BackgroundMap.FieldsWithout(s.AogBaseDir);
+            if (dirs.Count == 0) { Status(Lang.T("bg.none"), false); return; }
+            List<string> names2 = new List<string>();
+            foreach (string d in dirs) names2.Add(Path.GetFileName(d));
+            string list = string.Join(", ", names2.ToArray());
+            if (list.Length > 600) list = list.Substring(0, 600) + "…";
+            if (MessageBox.Show(this, Lang.T("bg.confirm", dirs.Count, list), Text, MessageBoxButtons.OKCancel,
+                                MessageBoxIcon.Information) != DialogResult.OK) return;
+            AddBackgrounds(dirs, null);
+        }
+
+        /// <summary>Downloads the aerial photos in the background and reports when done.</summary>
+        void AddBackgrounds(List<string> dirs, string firstMessage)
+        {
+            string key = s.MmlApiKey.Trim();
+            btnCreate.Enabled = btnBgMissing.Enabled = btnSearch.Enabled = false;
+            Cursor = Cursors.WaitCursor;
+            Thread t = new Thread(delegate()
+            {
+                int ok = 0;
+                List<string> errs = new List<string>();
+                for (int i = 0; i < dirs.Count; i++)
+                {
+                    int n = i + 1;
+                    try { BeginInvoke((MethodInvoker)delegate { Status(Lang.T("bg.progress", n, dirs.Count), false); }); } catch { }
+                    try { BackgroundMap.Add(dirs[i], key); ok++; }
+                    catch (Exception ex) { errs.Add(Path.GetFileName(dirs[i]) + ": " + ex.Message); Log.Write("Background map: " + ex); }
+                }
+                try
+                {
+                    BeginInvoke((MethodInvoker)delegate
+                    {
+                        Cursor = Cursors.Default;
+                        btnCreate.Enabled = parcels.Count > 0; btnBgMissing.Enabled = true; btnSearch.Enabled = true;
+                        string m = Lang.T("bg.done", ok, dirs.Count);
+                        if (errs.Count > 0) m += "\n" + string.Join("\n", errs.ToArray());
+                        Status(Lang.T("bg.done", ok, dirs.Count), errs.Count > 0);
+                        MessageBox.Show(this, (firstMessage != null ? firstMessage + "\n\n" : "") + m, Text, MessageBoxButtons.OK,
+                                        errs.Count > 0 ? MessageBoxIcon.Warning : MessageBoxIcon.Information);
+                    });
+                }
+                catch { }
+            });
+            t.IsBackground = true;
+            t.Start();
         }
     }
 }
