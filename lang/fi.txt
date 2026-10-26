@@ -264,8 +264,8 @@ an.areaThis = Pinta-ala, ha\n(tyhjä = mitattu ala)
 an.measured = (mitattu {0} ha; jätä ala-kenttä tyhjäksi, niin käytetään sitä)
 
 # Peruslohkojen tuonti AgOpenGPS:ään
-pi.open = Tuo peltojen rajat Ruokaviraston peruslohkoista…
-pi.title = AgPath – pellot Ruokaviraston peruslohkoista
+pi.open = Tuo peltojen rajat (Vipu / Ruokavirasto)…
+pi.title = AgPath – peltojen rajat AgOpenGPS:ään
 pi.intro = Avaa Vipusta ladattu lohkotiedosto, tai hae peruslohkoja Ruokaviraston avoimesta rekisteristä (ilman nimiä), ja luo niistä uusia AgOpenGPS-peltoja valmiilla rajalla. Olemassa oleviin AgOpenGPS-peltoihin ei kosketa.
 pi.around = Ympäriltä
 pi.tractor = Traktorin nykyinen sijainti

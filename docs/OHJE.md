@@ -167,9 +167,14 @@ Huomioita:
 * **Tallennuskansio**: minne ajot tallennetaan.
 * **Kuunteluosoite**: muuta vain, jos AgPath ilmoittaa, ettei se saa porttia auki.
 
-### Peltojen rajat Ruokaviraston peruslohkoista
+### Peltojen rajat Vipusta tai Ruokaviraston peruslohkoista
 
-**Asetukset → Tuo peltojen rajat Ruokaviraston peruslohkoista…** hakee peruslohkot Ruokaviraston avoimesta
+**Asetukset → Tuo peltojen rajat (Vipu / Ruokavirasto)…**
+
+* **Avaa Vipun lohkotiedosto (zip)…** lukee Vipusta ladatun lohkotiedoston (`lohkot<tilatunnus>_<vuosi>.zip`).
+  Siinä ovat lohkojen viralliset nimet, kasvit ja rajat (myös saarekkeet). Valitse, tuodaanko peruslohkot vai kasvulohkot.
+  **Valitse kaikki uudet** rastittaa kerralla kaikki lohkot, joita ei vielä ole AgOpenGPS:ssä.
+* Ilman Vipun tiedostoa **Hae** hakee peruslohkot Ruokaviraston avoimesta
 peltolohkorekisteristä (CC BY 4.0) traktorin sijainnin tai valitun AgOpenGPS-pellon ympäriltä, tai lohkotunnusten
 perusteella. Rastita lohkot, anna niille nimet ja paina **Luo valitut AgOpenGPS:ään**: jokaisesta tulee uusi
 AgOpenGPS-pelto valmiilla rajalla. Olemassa oleviin peltoihin ei kosketa. **Näytä kartalla** näyttää lohkot ilmakuvalla.

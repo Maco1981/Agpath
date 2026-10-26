@@ -161,9 +161,14 @@ AgPath stops and does not set it up. This feature is not made or supported by Su
 * **Save folder**: where the runs are saved.
 * **Listen address**: change it only if AgPath reports that it cannot open a port.
 
-### Field boundaries from the Finnish parcel register
+### Field boundaries from Vipu or the Finnish parcel register
 
-**Settings → Import field boundaries from the Finnish parcel register…** finds basic parcels in the open Land Parcel
+**Settings → Import field boundaries (Vipu / Finnish parcel register)…**
+
+* **Open a Vipu parcel file (zip)…** reads the parcel file downloaded from Vipu (`lohkot<farm id>_<year>.zip`), with
+  the official field names, crops and boundaries (including islands). Choose basic or agricultural parcels.
+  **Tick all new** ticks every parcel that is not in AgOpenGPS yet.
+* Without a Vipu file, **Search** finds basic parcels in the open Land Parcel
 Register of the Finnish Food Authority (CC BY 4.0) around the tractor or a chosen AgOpenGPS field, or by parcel ID.
 Tick the parcels, name them and press **Create ticked fields in AgOpenGPS**: each becomes a new AgOpenGPS field with
 its boundary. Existing fields are not touched. The register boundaries are drawn from aerial photos and are usually a

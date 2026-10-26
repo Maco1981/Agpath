@@ -265,7 +265,7 @@ an.areaThis = Area, ha\n(empty = measured)
 an.measured = (measured {0} ha; leave the area box empty to use it)
 
 # Basic parcels (Finland) to AgOpenGPS fields
-pi.open = Import field boundaries from the Finnish parcel register…
+pi.open = Import field boundaries (Vipu / Finnish parcel register)…
 pi.title = AgPath – fields from the Finnish parcel register
 pi.intro = Open a parcel file downloaded from Vipu, or search basic parcels in the open register of the Finnish Food Authority (no names), and create new AgOpenGPS fields with ready boundaries. Existing AgOpenGPS fields are not touched.
 pi.around = Around
