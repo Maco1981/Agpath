@@ -10,7 +10,7 @@ namespace AgPath
     static class Program
     {
         public static string AppDir;
-        public const string Version = "1.2.1";
+        public const string Version = "1.2.1-agrineuvos";
 
         [STAThread]
         static void Main(string[] args)
