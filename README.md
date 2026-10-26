@@ -102,10 +102,9 @@ Each user enters their own key; it is stored only in the local `settings.txt` an
 
 ## Agrineuvos (Finland)
 
-If Suonentieto's Agrineuvos farm management program is installed, an **Agrineuvos** button appears in the
-main window. It enters saved runs into Agrineuvos as completed operations by operating the Agrineuvos windows
-(Agrineuvos has no import for operations) and checks every step before saving. Field IDs and supplies are
-matched once per field and product (`agrineuvos.txt`). See the [guide](docs/GUIDE.md#5c-entering-runs-into-agrineuvos-finland).
+`kirjaaja/` contains **AgPath Kirjaaja**, a separate program for the computer that has Suonentieto's Agrineuvos. It reads
+the runs AgPath saved (e.g. in a shared OneDrive folder) and enters them into Agrineuvos as completed operations by
+operating its windows, checking every step. See the [guide](docs/GUIDE.md#5c-entering-runs-into-agrineuvos-finland).
 Not affiliated with or supported by Suonentieto.
 
 ## Language
