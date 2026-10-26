@@ -148,6 +148,7 @@ namespace AgPath
         Process worker;
         string jobFile;
         List<AnRun> sent;
+        readonly Dictionary<Form, bool> topMost = new Dictionary<Form, bool>();
 
         public static string ExePath()
         {
@@ -245,6 +246,7 @@ namespace AgPath
             poll.Interval = 500;
             poll.Tick += delegate { CheckWorker(); };
             FormClosing += delegate(object o, FormClosingEventArgs e) { if (worker != null && !worker.HasExited) e.Cancel = true; };
+            FormClosed += delegate { poll.Stop(); };
 
             runs = AnRun.LoadAll(s.SaveDir);
             Fill();
@@ -374,8 +376,15 @@ namespace AgPath
             btnExport.Enabled = btnClose.Enabled = false;
             lblStatus.ForeColor = Ui.Dark;
             lblStatus.Text = Lang.T("an.running");
-            // our windows must not cover Agrineuvos while it is being operated
-            foreach (Form f in Application.OpenForms) if (f.Visible) f.WindowState = FormWindowState.Minimized;
+            // our windows must not cover Agrineuvos while it is being operated. Minimizing is not possible
+            // (it would end this dialog), so drop "always on top" and move them behind other windows.
+            topMost.Clear();
+            foreach (Form f in Application.OpenForms)
+            {
+                topMost[f] = f.TopMost;
+                f.TopMost = false;
+                SetWindowPos(f.Handle, (IntPtr)1, 0, 0, 0, 0, 0x0001 | 0x0002 | 0x0010); // HWND_BOTTOM, no size/move/activate
+            }
             try { AllowSetForegroundWindow(-1); } catch { }
             ProcessStartInfo psi = new ProcessStartInfo(Application.ExecutablePath, "--agrineuvos \"" + jobFile + "\"");
             psi.UseShellExecute = false;
@@ -388,7 +397,8 @@ namespace AgPath
             if (worker == null || !worker.HasExited) return;
             poll.Stop();
             worker = null;
-            foreach (Form f in Application.OpenForms) f.WindowState = FormWindowState.Normal;
+            if (IsDisposed) return;
+            foreach (KeyValuePair<Form, bool> kv in topMost) if (!kv.Key.IsDisposed) kv.Key.TopMost = kv.Value;
             Activate();
             btnExport.Enabled = btnClose.Enabled = true;
 
@@ -423,5 +433,6 @@ namespace AgPath
         }
 
         [DllImport("user32.dll")] static extern bool AllowSetForegroundWindow(int pid);
+        [DllImport("user32.dll")] static extern bool SetWindowPos(IntPtr h, IntPtr after, int x, int y, int cx, int cy, uint flags);
     }
 }
