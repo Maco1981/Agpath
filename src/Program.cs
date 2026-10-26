@@ -24,6 +24,25 @@ namespace AgPath
                 StringBuilder sb = new StringBuilder();
                 try
                 {
+                    if (args[1].EndsWith(".zip", StringComparison.OrdinalIgnoreCase))
+                    {
+                        FieldDetector fv = new FieldDetector();
+                        fv.Load(Settings.Load().AogBaseDir);
+                        Directory.CreateDirectory(Path.Combine(args[2], "Fields"));
+                        foreach (bool kasvu in new bool[] { false, true })
+                        {
+                            System.Collections.Generic.List<Parcel> vs = ParcelImport.ReadVipu(args[1], kasvu);
+                            sb.AppendLine((kasvu ? "KASVU " : "PERUS ") + vs.Count);
+                            foreach (Parcel p in vs)
+                            {
+                                sb.AppendLine(p.Tunnus + "\t" + p.KlTunnus + "\t" + p.Name + "\t" + p.AreaHa + "\t" + p.Crops + "\t" + p.Ring.Count + "\t" + p.Holes.Count + "\t" + p.Source + "\t" + fv.FieldAt(p.CLat, p.CLon));
+                                if (!kasvu && p.Holes.Count > 0 && !Directory.Exists(Path.Combine(Path.Combine(args[2], "Fields"), "V" + p.Tunnus)))
+                                    ParcelImport.CreateField(args[2], "V" + p.Tunnus, p);
+                            }
+                        }
+                        File.WriteAllText(Path.Combine(args[2], "parcel_test.txt"), sb.ToString());
+                        return;
+                    }
                     string[] ll = args[1].Split(',');
                     double la = double.Parse(ll[0], System.Globalization.CultureInfo.InvariantCulture);
                     double lo = double.Parse(ll[1], System.Globalization.CultureInfo.InvariantCulture);
